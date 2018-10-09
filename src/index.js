@@ -1,13 +1,13 @@
 import * as THREE from 'three'
 import * as OIMO from 'oimo'
 
-
 import './index.css';
 
 var isMobile = false
 var antialias = true
 
 var paddel = new THREE.Object3D();
+let isDragging = false
 
 const max = 1
 
@@ -20,66 +20,44 @@ const dotMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 })
 const dot = new THREE.Mesh(dotGeometry, dotMaterial)
 // three var
 var camera, scene, light, renderer, canvas, controls;
-var meshs = [];
-var grounds = [];
-var geoBox, geoCyl, buffgeoSphere, buffgeoBox;
+// var grounds = [];
+var geoBox, geoCyl, buffgeoSphere;
 var matBox, matSphere, matBoxSleep, matSphereSleep, matGround;
 var types, sizes, positions, chairGeometry;
 var ToRad = Math.PI / 180;
 
 var world = null;
-var bodies = null;
+
+const bodies = [] // physics
+const meshes = [] // threejs
+
 var infos;
 init();
 loop();
+var dotPhysics
 
 
-
-function addBlocks() {
-  var geometry = new THREE.BoxBufferGeometry(100, 100, 100);
-
-  var objects = [];
-  for (var i = 0; i < 5; i++) {
-
-    var object = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ color: Math.random() * 0xffffff, opacity: 0.5 }));
-    object.position.x = Math.random() * 800 - 400;
-    object.position.y = Math.random() * 800 - 400;
-    object.position.z = Math.random() * 800 - 400;
-
-    object.scale.x = Math.random() * 2 + 1;
-    object.scale.y = Math.random() * 2 + 1;
-    object.scale.z = Math.random() * 2 + 1;
-
-    object.rotation.x = Math.random() * 2 * Math.PI;
-    object.rotation.y = Math.random() * 2 * Math.PI;
-    object.rotation.z = Math.random() * 2 * Math.PI;
-
-    scene.add(object);
-
-    objects.push(object);
-
-  }
-}
 
 function init() {
   var n = navigator.userAgent;
   if (n.match(/Android/i) || n.match(/webOS/i) || n.match(/iPhone/i) || n.match(/iPad/i) || n.match(/iPod/i) || n.match(/BlackBerry/i) || n.match(/Windows Phone/i)) { isMobile = true;  antialias = false; }
   infos = document.getElementById("info");
   canvas = document.getElementById("canvas");
-  camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 10000 );
-  camera.position.set(0, 300, 500);
-  //controls = new THREE.OrbitControls( camera, canvas );
-  // controls.target.set(0, 20, 0);
-  // controls.update();
+  camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 1, 10000 );
+  // camera.position.set(0, 300, 500);
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0xffffff);
 
+  scene.add(dot)
 
-  
   // scene.add(new THREE.AmbientLight(0x444444))
 
-  renderer = new THREE.WebGLRenderer({ canvas:canvas, precision: "mediump", antialias:antialias });
-  renderer.setSize( window.innerWidth, window.innerHeight );
+  renderer = new THREE.WebGLRenderer({ 
+    canvas,
+    // precision: "mediump",
+    antialias
+  })
+  renderer.setSize( window.innerWidth, window.innerHeight )
   renderer.setPixelRatio(window.devicePixelRatio);
 
   // addBlocks()
@@ -106,13 +84,12 @@ function init() {
   geoCyl = new THREE.CylinderGeometry( 0.5, 0.5, 1, 6, 1 );
   buffgeoSphere = new THREE.BufferGeometry();
   buffgeoSphere.fromGeometry( new THREE.SphereGeometry( 1 , 20, 10 ) );
-  buffgeoBox = new THREE.BufferGeometry();
-  buffgeoBox.fromGeometry( new THREE.BoxGeometry( 1, 1, 1 ) );
+  
   matSphere = new THREE[materialType]( { map: basicTexture(0), name:'sph' ,specular: 0xFFFFFF, shininess: 120, transparent: true, opacity: 0.9 } );
   matBox = new THREE[materialType]( {  map: basicTexture(2), name:'box' } );
   matSphereSleep = new THREE[materialType]( { map: basicTexture(1), name:'ssph', specular: 0xFFFFFF, shininess: 120 , transparent: true, opacity: 0.7} );
   matBoxSleep = new THREE[materialType]( {  map: basicTexture(3), name:'sbox' } );
-  matGround = new THREE[materialType]( { shininess: 10, color:'pink', transparent: false, opacity:0.5 } );
+  matGround = new THREE[materialType]( { shininess: 10, color: 'pink', transparent: false, opacity: 0.5 } );
   
   
   // events
@@ -125,7 +102,7 @@ function init() {
   initOimoPhysics()
 }
 
-let isDragging = false
+
 
 function handleMouseUp(e) {
   isDragging = false
@@ -142,22 +119,12 @@ function handleMouseDown(e) {
   var intersects = raycaster.intersectObjects(scene.children, true);
 
   isDragging = true
+  
   if (intersects.length) {
 
     dot.position.copy(intersects[0].point)
-
-    // const geometry = new THREE.SphereGeometry(5, 32, 32)
-    // const material = new THREE.MeshBasicMaterial({ color: 0xffff00 })
-
-    // const particle = new THREE.Mesh(geometry, material)
-    // particle.position.copy(intersects[0].point)
-    // scene.add(particle)
-
-    
-    
+        
     // intersects[0].object.material.color.setHex(Math.random() * 0xffffff);
-
-
 
   }
 }
@@ -176,23 +143,31 @@ function handleMouseMove(e) {
     document.body.classList.add('cursor-grab')
 
     if (isDragging) {
-      // console.log(intersects[0])
-      const { x, y, z } = intersects[0].point
 
-      console.log(intersects[0], dot)
-      
+      const { x, y, z } = intersects[0].point
 
       var joint = world.add({
         type: 'jointHinge', // type of joint : jointDistance, jointHinge, jointPrisme, jointSlide, jointWheel
-        body1: intersects[0], // name or id of attach rigidbody
-        body2: dot, // name or id of attach rigidbody
+        body1: bodies[0], // name or id of attach rigidbody
+        body2: dotPhysics, // name or id of attach rigidbody
       });
+
+      // dotPhysics.getQuaternion()
+
+      // intersects[0].object.quaternion.copy(dotPhysics.getQuaternion())
+
+      console.log(dotPhysics)
+
+      dotPhysics.setQuaternion(x, y, z)
+      
+      dot.position.copy(intersects[0].point)
+
+
+      
 
       //  intersects[0].object.position.set(x, y, z) 
 
-      
-      dot.position.copy(intersects[0].point)
-      
+
 
     }
 
@@ -203,14 +178,14 @@ function handleMouseMove(e) {
 }
 
 
-var theta = 0
+var theta = 9.4
 var radius = 600;
 
 function loop() {
     updateOimoPhysics();
     raycaster.setFromCamera(mouse, camera);
   
-    theta += 0.1;
+    // theta += 0.1;
 
     camera.position.x = radius * Math.sin(THREE.Math.degToRad(theta));
     camera.position.y = radius * Math.sin(THREE.Math.degToRad(theta));
@@ -226,14 +201,16 @@ function onWindowResize() {
     renderer.setSize( window.innerWidth, window.innerHeight );
 }
 
-function addFloor(size, position, rotation) {
+function addFloor(size, position) {
+  const buffgeoBox = new THREE.BufferGeometry();
+  buffgeoBox.fromGeometry(new THREE.BoxGeometry(1, 1, 1));
   var mesh = new THREE.Mesh( buffgeoBox, matGround );
   mesh.scale.set( size[0], size[1], size[2] );
   mesh.position.set( position[0], position[1], position[2] );
-  mesh.rotation.set( rotation[0]*ToRad, rotation[1]*ToRad, rotation[2]*ToRad );
+  // mesh.rotation.set( rotation[0]*ToRad, rotation[1]*ToRad, rotation[2]*ToRad );
   scene.add( mesh );
-  grounds.push(mesh);
-  mesh.castShadow = true;
+  // grounds.push(mesh);
+  // mesh.castShadow = true;
   mesh.receiveShadow = true;
 }
 
@@ -266,13 +243,27 @@ function initOimoPhysics() {
   world = new OIMO.World({
     info: false,
     worldscale: 100,
-    timestep: 1 / 60,
-    iterations: 3,
+    // timestep: 1 / 60,
+    // iterations: 3,
     broadphase: 1, // 1 brute force, 2 sweep and prune, 3 volume tree
-    // random: true,  // randomize sample
-    //info: false,   // calculate statistic or not
+    random: true,  // randomize sample
+    // info: false,   // calculate statistic or not
     gravity: [0, -9.8, 0] 
   })
+
+
+  dotPhysics = world.add({
+    world,
+    type: 'sphere',
+    name: 'dot',
+    pos: [10, 80, 10], // start position in degree
+    rot: [0, 0, 0], // start rotation in degree
+    move: false,
+    size: [5, 32, 32],
+    config: [0.2, 0.4, 0.1],
+  });
+
+
   initChairGeometry();
   populate();
 }
@@ -281,30 +272,18 @@ function populate() {
   var pos = []
   world.clear()
   
-  bodies = [];
+  const floorSize = [300, 10, 300]
+  const floorPos = [0, 0, 0]
   
   // the floor physics
   world.add({
     world,
-    size: [100, 40, 390],
-    pos: [0, -20, 0],
-  });
+    size: floorSize,
+    pos: floorPos,
+  })
   
   // the floor appearance
-  addFloor([140, 10, 390], [0,-20,0], [0,0,0]);
-
-  scene.add(dot)
-
-  world.add({
-    world,
-    type: 'sphere',
-    name: 'dot',
-    id: 'dot',
-    pos: [0, 0, 0], // start position in degree
-    rot: [0, 0, 90], // start rotation in degree
-    move: false,
-    size: [5, 32, 32],
-  });
+  addFloor(floorSize, floorPos);
 
   var i = max;
   while (i--) {
@@ -326,13 +305,14 @@ function populate() {
     var j = Math.round(Math.random()*1);
 
     if (j === 1) {
-      meshs[i] = new THREE.Mesh(chairGeometry, matBox);
+      meshes[i] = new THREE.Mesh(chairGeometry, matBox);
     } else {
-      meshs[i] = new THREE.Mesh(chairGeometry, matSphere);
+      meshes[i] = new THREE.Mesh(chairGeometry, matSphere);
     }
-    meshs[i].castShadow = true;
-    meshs[i].receiveShadow = true;
-    scene.add(meshs[i]);
+    
+    meshes[i].castShadow = true;
+    meshes[i].receiveShadow = true;
+    scene.add(meshes[i]);
   }
 }
 
@@ -341,37 +321,31 @@ function updateOimoPhysics() {
   // update world
   world.step();
 
-  // paddel.lookAt(new THREE.Vector3(100, paddel.position.y, 0));
-  // paddel.rotation.y += 90 * ToRad;
-
-
-  // apply new rotation on last rigidbody
-  // bodies[bodies.length - 1].setQuaternion(paddel.quaternion);
-
   var x, y, z, mesh, body, i = bodies.length;
   
   while (i--) {
   
     body = bodies[i];
-    mesh = meshs[i];
+    mesh = meshes[i];
     if (!body.sleeping) {
+      
       // apply physics mouvement
       mesh.position.copy(body.getPosition())
       mesh.quaternion.copy(body.getQuaternion())
       // change material
       if (mesh.material.name === 'sbox') mesh.material = matBox;
       if (mesh.material.name === 'ssph') mesh.material = matSphere; 
-      // reset position
       
+      // reset position
       if (mesh.position.y < -100) {
         x = -100 + Math.random() * 200
         z = -100 + Math.random() * 200
         y = 100 + Math.random() * 1000
-        body.resetPosition(x,y,z);
+        body.resetPosition(x, y, z);
       }
     } else {
-      if (mesh.material.name === 'box') mesh.material = matBoxSleep;
-      if (mesh.material.name === 'sph') mesh.material = matSphereSleep;
+      // if (mesh.material.name === 'box') mesh.material = matBoxSleep;
+      // if (mesh.material.name === 'sph') mesh.material = matSphereSleep;
     }
   }
   // infos.innerHTML = world.getInfo();
