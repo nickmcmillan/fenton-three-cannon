@@ -8,3 +8,16 @@ body {
   position: fixed;
   top: 0;
 }
+
+
+.cursor-move {
+  cursor: move;
+}
+
+.cursor-grab {
+	cursor: grab;
+}
+
+.cursor-grabbing {
+	cursor: grabbing;
+}
