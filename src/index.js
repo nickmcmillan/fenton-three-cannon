@@ -6,8 +6,8 @@ import './index.css';
 var isMobile = false
 var antialias = true
 
-var paddel = new THREE.Object3D();
 let isDragging = false
+var intersects  = []
 
 const max = 1
 
@@ -54,7 +54,7 @@ function init() {
 
   renderer = new THREE.WebGLRenderer({ 
     canvas,
-    // precision: "mediump",
+    precision: "mediump",
     antialias
   })
   renderer.setSize( window.innerWidth, window.innerHeight )
@@ -106,6 +106,7 @@ function init() {
 
 function handleMouseUp(e) {
   isDragging = false
+  joint = null
 }
 
 function handleMouseDown(e) {
@@ -116,60 +117,95 @@ function handleMouseDown(e) {
 
   raycaster.setFromCamera(mouse, camera);
 
-  var intersects = raycaster.intersectObjects(scene.children, true);
+  intersects = raycaster.intersectObjects(scene.children, true);
 
   isDragging = true
-  
+
   if (intersects.length) {
 
+    
+    const { x, y, z } = intersects[0].point
+
+    joint = world.add({
+      type: 'jointHinge', // type of joint : jointDistance, jointHinge, jointPrisme, jointSlide, jointWheel
+      body1: bodies[0], // name or id of attach rigidbody
+      body2: dotPhysics, // name or id of attach rigidbody
+      pos1: [x,y,z], 
+      pos2: [x, y, z], 
+    })
+
     dot.position.copy(intersects[0].point)
+
+    console.log(joint)
+    
+    // bodies[0].position.copy(intersects[0].point)
         
     // intersects[0].object.material.color.setHex(Math.random() * 0xffffff);
 
   }
 }
 
+var joint
+
 function handleMouseMove(e) {
   e.preventDefault()
+
+  if (!isDragging) return
   
   mouse.x = (e.clientX / renderer.domElement.clientWidth) * 2 - 1;
   mouse.y = -(e.clientY / renderer.domElement.clientHeight) * 2 + 1;
 
   raycaster.setFromCamera(mouse, camera);
-
-  const intersects = raycaster.intersectObjects(scene.children, true);
+  intersects = raycaster.intersectObjects(scene.children, true);
 
   if (intersects.length) {
     document.body.classList.add('cursor-grab')
 
-    if (isDragging) {
+    const { x, y, z } = intersects[0].point
+    // console.log(intersects[0].object)
+    dotPhysics.position.copy(intersects[0].object.position)
+    dotPhysics.quaternion.copy(intersects[0].object.quaternion)
+    
+    // bodies[0].position.copy(intersects[0].point.add(new THREE.Vector3(x, y, z)));
 
-      const { x, y, z } = intersects[0].point
+    
+    // console.log(joint)
+    
 
-      var joint = world.add({
-        type: 'jointHinge', // type of joint : jointDistance, jointHinge, jointPrisme, jointSlide, jointWheel
-        body1: bodies[0], // name or id of attach rigidbody
-        body2: dotPhysics, // name or id of attach rigidbody
-      });
+    // dotPhysics.getQuaternion()
 
-      // dotPhysics.getQuaternion()
+    // console.log(intersects[0])
+    
 
-      // intersects[0].object.quaternion.copy(dotPhysics.getQuaternion())
+    // intersects[0].object.quaternion.copy(dotPhysics.getQuaternion())
 
-      console.log(dotPhysics)
-
-      dotPhysics.setQuaternion(x, y, z)
-      
-      dot.position.copy(intersects[0].point)
-
-
-      
-
-      //  intersects[0].object.position.set(x, y, z) 
+    const force = intersects[0].object.position.clone().negate().normalize().multiplyScalar(0.1)
+    
 
 
+    if (bodies[0].type === 1) {
+      // console.log(bodies[0])
+      // var center = new THREE.Vector3(x,y,z);
+      // bodies[0].applyImpulse(center, force)
+
+      // bodies[0].setQuaternion(center, force)
 
     }
+
+
+
+    // dotPhysics.setQuaternion(center, 1)
+    
+    // dot.position.copy(intersects[0].point)
+
+
+    
+
+    //  intersects[0].object.position.set(x, y, z) 
+
+
+
+  
 
   } else {
     document.body.classList.remove('cursor-grab')
@@ -258,7 +294,7 @@ function initOimoPhysics() {
     name: 'dot',
     pos: [10, 80, 10], // start position in degree
     rot: [0, 0, 0], // start rotation in degree
-    move: false,
+    move: true,
     size: [5, 32, 32],
     config: [0.2, 0.4, 0.1],
   });
@@ -298,6 +334,7 @@ function populate() {
       size: sizes,
       posShape: positions,
       move: true, 
+      noSleep: true, 
       name: 'box' + i, 
       config: [0.2, 0.4, 0.1]
     })
@@ -321,8 +358,13 @@ function updateOimoPhysics() {
   // update world
   world.step();
 
-  var x, y, z, mesh, body, i = bodies.length;
-  
+  var x,
+      y,
+      z,
+      mesh, 
+      body,
+      i = bodies.length;
+    
   while (i--) {
   
     body = bodies[i];
@@ -335,6 +377,39 @@ function updateOimoPhysics() {
       // change material
       if (mesh.material.name === 'sbox') mesh.material = matBox;
       if (mesh.material.name === 'ssph') mesh.material = matSphere; 
+
+      // MAYBE
+
+      // paddel.rotation.y += 90 * ToRad;
+
+      // bodies[0].setQuaternion(dotPhysics.quaternion);
+      
+
+      // bodys[bodys.length - 1].setPosition(paddel.position);
+
+      if (intersects.length) {
+
+        // bodies[0].setPosition(dotPhysics.position);
+        
+
+        // const force = intersects[0].object.position.clone().negate().normalize().multiplyScalar(0.1)
+  
+        if (bodies[0].type === 1) {
+          // console.log(bodies[0])
+          var center = new THREE.Vector3(x, y, z);
+          // bodies[0].applyImpulse(center, force)
+          // bodies[0].setPosition(x,y,z);
+  
+          // bodies[0].setQuaternion(center, 1)
+  
+        }
+      }
+
+
+      // if (1) {
+      //   console.log(body)
+        
+      // }
       
       // reset position
       if (mesh.position.y < -100) {
