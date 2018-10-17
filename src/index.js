@@ -3,49 +3,38 @@ import * as CANNON from 'cannon'
 
 import './index.css';
 
-
-
 var cubeMesh
-var boxShape
 var boxBody
 
 var raycaster = new THREE.Raycaster();
-var mouse = new THREE.Vector2();
 
 var world;
 var dt = 1 / 60;
 var entity
-var constraintDown = false;
-var camera, scene, renderer;
+
+var camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 0.5, 10000);
+var scene, renderer;
 
 var planeGeo = new THREE.PlaneGeometry(100, 100);
-var invisomaterial = new THREE.MeshLambertMaterial({ transparent: true, color: 0xffffff, opacity: 0 });
+var invisomaterial = new THREE.MeshLambertMaterial({ transparent: true, opacity: 0 });
 var gplane = new THREE.Mesh(planeGeo, invisomaterial);
 
 // stabalise
 gplane.position.copy(0,0,0)
 gplane.quaternion.copy(0,0,0)
 // gplane.visible = false
-// gplane.renderOrder = -1
-
-// gplane.traverse(function (object) { object.visible = false; });
 
 
-// plane.visible = false; // Hide it..
-
-
-var clickMarkerShape = new THREE.SphereGeometry(0.2, 8, 8);
-var markerMaterial = new THREE.MeshLambertMaterial({ color: 0xff0000 });
+var markerMaterial = new THREE.MeshLambertMaterial({ color: 0x00cc00 });
 var clickMarker = false
 
 var geometry, material, mesh;
-var controls, time = Date.now();
 
 var jointBody, constrainedBody, mouseConstraint;
 
-var N = 1;
+var blockCount = 10;
 
-var container, camera, scene, renderer, projector;
+var container = document.createElement('div');
 
 // To be synced
 var meshes = [], bodies = [];
@@ -60,10 +49,6 @@ init();
 animate();
 
 function init() {
-
-  // projector = new THREE.Projector();
-
-  container = document.createElement('div');
   document.body.appendChild(container);
 
   // scene
@@ -71,7 +56,7 @@ function init() {
   scene.fog = new THREE.Fog(0x000000, 500, 10000);
 
   // camera
-  camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 0.5, 10000);
+  
   camera.position.set(10, 2, 0);
   camera.quaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI / 2);
   scene.add(camera);
@@ -118,7 +103,7 @@ function init() {
   // cubes
   var cubeGeo = new THREE.BoxGeometry(1, 1, 1, 10, 10);
   var cubeMaterial = new THREE.MeshPhongMaterial({ color: 0x888888 });
-  for (var i = 0; i < N; i++) {
+  for (var i = 0; i < blockCount; i++) {
     cubeMesh = new THREE.Mesh(cubeGeo, cubeMaterial);
     cubeMesh.castShadow = true;
     meshes.push(cubeMesh);
@@ -154,7 +139,6 @@ function setClickMarker(x, y, z) {
 }
 
 function removeClickMarker() {
-  
   clickMarker.visible = false;
 }
 
@@ -209,7 +193,6 @@ function onMouseDown(e) {
   var pos = entity.point;
 
   if (pos && entity.object.geometry instanceof THREE.BoxGeometry) {
-    constraintDown = true;
     setClickMarker(pos.x, pos.y, pos.z);
     
     // Set marker on contact point
@@ -226,7 +209,6 @@ function onMouseDown(e) {
 
 // This function creates a virtual movement plane for the mouseJoint to move in
 function setScreenPerpCenter(point) {
-  
   // Center at mouse position
   gplane.position.copy(point);
 
@@ -235,54 +217,13 @@ function setScreenPerpCenter(point) {
 }
 
 function onMouseUp(e) {
-  constraintDown = false;
-  // remove the marker
   // Send the remove mouse joint to server
   removeJointConstraint();
-  if (!entity.length) return
+  
+  if (!entity) return
+  // remove the marker
   removeClickMarker();
-
 }
-
-// var lastx, lasty, last;
-// function projectOntoPlane(screenX, screenY, thePlane, camera) {
-//   var x = screenX;
-//   var y = screenY;
-//   var now = new Date().getTime();
-//   // project mouse to that plane
-//   var hit = findNearestIntersectingObject(screenX, screenY, camera, [thePlane]);
-//   lastx = x;
-//   lasty = y;
-//   last = now;
-//   if (hit)
-//     return hit.point;
-//   return false;
-// }
-// function findNearestIntersectingObject(clientX, clientY, camera, objects) {
-//   // Get the picking ray from the point
-//   var raycaster = getRayCasterFromScreenCoord(clientX, clientY, camera, projector);
-
-//   // Find the closest intersecting object
-//   // Now, cast the ray all render objects in the scene to see if they collide. Take the closest one.
-//   var hits = raycaster.intersectObjects(objects);
-//   var closest = false;
-//   if (hits.length > 0) {
-//     closest = hits[0];
-//   }
-
-//   return closest;
-// }
-
-// Function that returns a raycaster to use to find intersecting objects
-// in a scene given screen pos and a camera, and a projector
-// function getRayCasterFromScreenCoord(screenX, screenY, camera, projector) {
-//   var mouse3D = new THREE.Vector3();
-//   // Get 3D point form the client x y
-//   mouse3D.x = (screenX / window.innerWidth) * 2 - 1;
-//   mouse3D.y = -(screenY / window.innerHeight) * 2 + 1;
-//   mouse3D.z = 0.5;
-//   return projector.pickingRay(mouse3D, camera);
-// }
 
 function onWindowResize() {
   camera.aspect = window.innerWidth / window.innerHeight;
@@ -291,12 +232,14 @@ function onWindowResize() {
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
+
 function animate() {
-  requestAnimationFrame(animate);
   //controls.update();
   updatePhysics();
   render();
+  requestAnimationFrame(animate);
 }
+
 
 function updatePhysics() {
   world.step(dt);
@@ -306,7 +249,15 @@ function updatePhysics() {
   }
 }
 
+let theta = 9.4
+const radius = 50;
+
 function render() {
+  theta += 0.1;
+  camera.position.x = radius * Math.sin(THREE.Math.degToRad(theta));
+  camera.position.y = radius * Math.sin(THREE.Math.degToRad(theta));
+  camera.position.z = radius * Math.cos(THREE.Math.degToRad(theta));
+  camera.lookAt(scene.position)
   renderer.render(scene, camera);
 }
 
@@ -317,15 +268,15 @@ function initCannon() {
   world.quatNormalizeFast = false;
 
   world.gravity.set(0, -10, 0);
-  world.broadphase = new CANNON.NaiveBroadphase();
+  // world.broadphase = new CANNON.NaiveBroadphase();
 
   // Create boxes
-  var mass = 5, radius = 1.3;
-  boxShape = new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.5));
-  for (var i = 0; i < N; i++) {
-    boxBody = new CANNON.Body({ mass: mass });
+
+  const boxShape = new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.5));
+  for (var i = 0; i < blockCount; i++) {
+    const boxBody = new CANNON.Body({ mass: 5 });
     boxBody.addShape(boxShape);
-    boxBody.position.set(0, 5, 0);
+    boxBody.position.set(Math.random() * 4, Math.random() * 2, Math.random() * 4);
     world.add(boxBody);
     bodies.push(boxBody);
   }
