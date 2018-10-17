@@ -14,13 +14,29 @@ var mouse = new THREE.Vector2();
 
 var world;
 var dt = 1 / 60;
-
+var entity
 var constraintDown = false;
-var camera, scene, renderer, gplane = false;
+var camera, scene, renderer;
+
+var planeGeo = new THREE.PlaneGeometry(100, 100);
+var invisomaterial = new THREE.MeshLambertMaterial({ transparent: true, color: 0xffffff, opacity: 0 });
+var gplane = new THREE.Mesh(planeGeo, invisomaterial);
+
+// stabalise
+gplane.position.copy(0,0,0)
+gplane.quaternion.copy(0,0,0)
+// gplane.visible = false
+// gplane.renderOrder = -1
+
+// gplane.traverse(function (object) { object.visible = false; });
+
+
+// plane.visible = false; // Hide it..
+
 
 var clickMarkerShape = new THREE.SphereGeometry(0.2, 8, 8);
-var clickMarkerMaterial = new THREE.MeshLambertMaterial({ color: 0xff0000 });
-var clickMarker = new THREE.Mesh(clickMarkerShape, clickMarkerMaterial);
+var markerMaterial = new THREE.MeshLambertMaterial({ color: 0xff0000 });
+var clickMarker = false
 
 var geometry, material, mesh;
 var controls, time = Date.now();
@@ -33,6 +49,11 @@ var container, camera, scene, renderer, projector;
 
 // To be synced
 var meshes = [], bodies = [];
+
+// var planeGeo = new THREE.PlaneGeometry(100, 100);
+// var plane = gplane = new THREE.Mesh(planeGeo, material);
+// plane.visible = false; // Hide it..
+
 
 initCannon();
 init();
@@ -56,8 +77,9 @@ function init() {
   scene.add(camera);
 
   // lights
-  var light, materials;
+  var light;
   scene.add(new THREE.AmbientLight(0x666666));
+  scene.add(gplane);
 
   light = new THREE.DirectionalLight(0xffffff, 1.75);
   var d = 20;
@@ -121,7 +143,10 @@ function init() {
 }
 
 function setClickMarker(x, y, z) {
-  if (!clickMarker.visible) {
+  
+  if (!clickMarker) {
+    var shape = new THREE.SphereGeometry(0.2, 8, 8);
+    clickMarker = new THREE.Mesh(shape, markerMaterial);
     scene.add(clickMarker);
   }
   clickMarker.visible = true;
@@ -129,24 +154,14 @@ function setClickMarker(x, y, z) {
 }
 
 function removeClickMarker() {
-  clickMarker.visible = false;
-  console.log(clickMarker)
   
+  clickMarker.visible = false;
 }
 
 function onMouseMove(e) {
   // Move and project on the plane
 
-  // var pos = projectOntoPlane(e.clientX, e.clientY, gplane, camera);
-  // if (pos) {
-
-  //   setClickMarker(pos.x, pos.y, pos.z, scene);
-  //   moveJointToPoint(pos.x, pos.y, pos.z);
-  // }
-
-  // return
-
-  if (gplane && mouseConstraint) {
+  if (mouseConstraint) {
 
     var mouse3D = new THREE.Vector3();
 
@@ -155,15 +170,20 @@ function onMouseMove(e) {
     mouse3D.z = 0.5;
 
     raycaster.setFromCamera(mouse3D, camera);
+    
+    var intersects = raycaster.intersectObjects([gplane]);     // gplane, not chidlren
 
-    var intersects = raycaster.intersectObjects(scene.children);    
+    console.log(gplane)
 
-    var entity = intersects[0]
+    if (!intersects.length) return
+    
+    entity = intersects[0]
+
     var pos = entity.point;
+
     
     if (pos) {
-      
-      setClickMarker(pos.x, pos.y, pos.z, scene);
+      setClickMarker(pos.x, pos.y, pos.z);
       moveJointToPoint(pos.x, pos.y, pos.z);
     }
   }
@@ -176,22 +196,26 @@ function onMouseDown(e) {
 
   mouse3D.x = (e.clientX / window.innerWidth) * 2 - 1;
   mouse3D.y = - (e.clientY / window.innerHeight) * 2 + 1;
-  mouse3D.z = -2;
+  mouse3D.z = 0.5;
 
   raycaster.setFromCamera(mouse3D, camera);
 
   // calculate objects intersecting the picking ray
-  var intersects = raycaster.intersectObjects(scene.children);
-
-  var entity = intersects[0]
+  var intersects = raycaster.intersectObjects(meshes); // or scene.children
+  
+  entity = intersects[0]
+  
+  if (!intersects.length) return
   var pos = entity.point;
+
   if (pos && entity.object.geometry instanceof THREE.BoxGeometry) {
     constraintDown = true;
+    setClickMarker(pos.x, pos.y, pos.z);
+    
     // Set marker on contact point
-    setClickMarker(pos.x, pos.y, pos.z, scene);
 
     // Set the movement plane
-    setScreenPerpCenter(pos, camera);
+    setScreenPerpCenter(pos);
 
     var idx = meshes.indexOf(entity.object);
     if (idx !== -1) {
@@ -201,15 +225,8 @@ function onMouseDown(e) {
 }
 
 // This function creates a virtual movement plane for the mouseJoint to move in
-function setScreenPerpCenter(point, camera) {
-  // If it does not exist, create a new one
-  if (!gplane) {
-    var planeGeo = new THREE.PlaneGeometry(100, 100);
-    var plane = gplane = new THREE.Mesh(planeGeo, material);
-    plane.visible = false; // Hide it..
-    scene.add(gplane);
-  }
-
+function setScreenPerpCenter(point) {
+  
   // Center at mouse position
   gplane.position.copy(point);
 
@@ -220,10 +237,11 @@ function setScreenPerpCenter(point, camera) {
 function onMouseUp(e) {
   constraintDown = false;
   // remove the marker
-  removeClickMarker();
-
   // Send the remove mouse joint to server
   removeJointConstraint();
+  if (!entity.length) return
+  removeClickMarker();
+
 }
 
 // var lastx, lasty, last;
