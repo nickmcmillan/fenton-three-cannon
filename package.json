@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "cannon": "^0.6.2",
     "oimo": "^1.0.9",
     "orbit-controls-es6": "^1.0.12",
     "react-scripts": "1.1.5",
