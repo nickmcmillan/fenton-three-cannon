@@ -12,7 +12,11 @@ var world;
 var dt = 1 / 60;
 var entity
 
-var camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 0.5, 10000);
+// FOV – We’re using 45 degrees for our field of view.
+// Apsect – We’re simply dividing the browser width and height to get an aspect ratio.
+// Near – This is the distance at which the camera will start rendering scene objects.
+// Far – Anything beyond this distance will not be rendered.Perhaps more commonly known as the draw distance.
+var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.5, 100);
 var scene, renderer;
 
 var planeGeo = new THREE.PlaneGeometry(100, 100);
@@ -268,7 +272,7 @@ function initCannon() {
   world.quatNormalizeFast = false;
 
   world.gravity.set(0, -10, 0);
-  // world.broadphase = new CANNON.NaiveBroadphase();
+  world.broadphase = new CANNON.NaiveBroadphase();
 
   // Create boxes
 
