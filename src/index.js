@@ -9,30 +9,33 @@ import { threeToCannon } from 'three-to-cannon';
 import keyboardMtl from './materials/model.mtl'
 import keyboardObj from './models/model.obj'
 
+import guitarMtl from './materials/guitar.mtl'
+import guitarObj from './models/guitar.obj'
+
 const mtlLoader = new MTLLoader();
 const objLoader = new OBJLoader();
 
 
-var cannonDebugRenderer
+let cannonDebugRenderer
 
-var cubeMesh
+// var cubeMesh
 
 const raycaster = new THREE.Raycaster();
 
 let world;
-var dt = 1 / 60;
+const dt = 1 / 60;
 var entity
 
 // FOV – We’re using 45 degrees for our field of view.
 // Apsect – We’re simply dividing the browser width and height to get an aspect ratio.
 // Near – This is the distance at which the camera will start rendering scene objects.
 // Far – Anything beyond this distance will not be rendered.Perhaps more commonly known as the draw distance.
-var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.5, 100);
+const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.5, 100);
 var scene, renderer;
 
 var planeGeo = new THREE.PlaneGeometry(100, 100);
-var invisomaterial = new THREE.MeshLambertMaterial({ transparent: true, opacity: 0 });
-var gplane = new THREE.Mesh(planeGeo, invisomaterial);
+var invisoMaterial = new THREE.MeshLambertMaterial({ transparent: true, opacity: 0 });
+var gplane = new THREE.Mesh(planeGeo, invisoMaterial);
 
 // stabalise
 gplane.position.copy(0,0,0)
@@ -47,13 +50,12 @@ var geometry, material, mesh;
 
 var jointBody, constrainedBody, mouseConstraint;
 
-var blockCount = 10;
-const keyboardCount = 3
+const blockCount = 3;
+const keyboardCount = 2
 
 // To be synced
 const meshes = [] // threejs
 const bodies = [] // cannon
-let shape
 
 initCannon();
 init();
@@ -72,11 +74,11 @@ function init() {
   scene.add(camera);
 
   // lights
-  var light;
+
   scene.add(new THREE.AmbientLight(0x666666));
   scene.add(gplane);
 
-  light = new THREE.DirectionalLight(0xffffff, 1.75);
+  const light = new THREE.DirectionalLight(0xffffff, 1.25);
   var d = 20;
 
   light.position.set(d, d, d);
@@ -108,28 +110,25 @@ function init() {
   scene.add(mesh);
 
   // cubes
-  var cubeGeo = new THREE.BoxGeometry(1, 1, 1, 10, 10);
-  var cubeMaterial = new THREE.MeshPhongMaterial({ color: 0x888888 });
-  for (var i = 0; i < blockCount; i++) {
-    cubeMesh = new THREE.Mesh(cubeGeo, cubeMaterial);
+  const cubeGeo = new THREE.BoxGeometry(1, 1, 1, 10, 10);
+  const cubeMaterial = new THREE.MeshPhongMaterial({ color: 0xbad455 });
+
+  for (let i = 0; i < blockCount; i++) {
+
+    const cubeMesh = new THREE.Mesh(cubeGeo, cubeMaterial);
     cubeMesh.castShadow = true;
     meshes.push(cubeMesh);
     scene.add(cubeMesh);
   }
-
   
-  mtlLoader.load(keyboardMtl, (materials) => {
+  mtlLoader.load(keyboardMtl, materials => {
     
     materials.preload()
     objLoader.setMaterials(materials)
 
-
     for (var i = 0; i < keyboardCount; i++) {
 
-    
-
       objLoader.load(keyboardObj, (object) => {
-
 
         object.traverse(node => {
           if (node instanceof THREE.Mesh) {
@@ -137,7 +136,6 @@ function init() {
             node.receiveShadow = true
           }
         })
-
 
         meshes.push(object)
         scene.add(object)
@@ -192,8 +190,7 @@ function removeClickMarker() {
 function onMouseMove(e) {
   // Move and project on the plane
 
-  
-  
+
   if (mouseConstraint) {
 
     var mouse3D = new THREE.Vector3();
@@ -206,13 +203,11 @@ function onMouseMove(e) {
     
     var intersects = raycaster.intersectObject(gplane, true);     // gplane, not chidlren
 
-    // console.log(intersects)
-
     if (!intersects.length) return
     
     entity = intersects[0]
 
-    var pos = entity.point;
+    const pos = entity.point;
 
     
     if (pos) {
@@ -315,16 +310,16 @@ function updatePhysics() {
   }
 }
 
-let theta = 4
-const radius = 50;
+let theta = 30
+const radius = 20
 
 function render() {
-  theta += 0.1;
-  camera.position.x = radius * Math.sin(THREE.Math.degToRad(theta));
-  camera.position.y = radius * Math.sin(THREE.Math.degToRad(theta));
-  camera.position.z = radius * Math.cos(THREE.Math.degToRad(theta));
+  theta += 0.3
+  camera.position.x = radius * Math.sin(THREE.Math.degToRad(theta))
+  camera.position.y = THREE.Math.degToRad(360)
+  camera.position.z = radius * Math.cos(THREE.Math.degToRad(theta))
   camera.lookAt(scene.position)
-  renderer.render(scene, camera);
+  renderer.render(scene, camera)
   
 }
 
@@ -335,7 +330,7 @@ function initCannon() {
   world.quatNormalizeSkip = 0;
   world.quatNormalizeFast = false;
 
-  world.gravity.set(0, -10, 0);
+  world.gravity.set(0, -16, 0);
   world.broadphase = new CANNON.NaiveBroadphase();
 
   // Create boxes
@@ -348,21 +343,19 @@ function initCannon() {
     bodies.push(boxBody);
   }
 
-  
   objLoader.load(keyboardObj, (object) => {
 
-    const keyboardShapeold = new CANNON.Box(new CANNON.Vec3(5, 1, 9))
-    // const keyboardShape = threeToCannon(object, { type: threeToCannon.Type.MESH }); // omg!    
+    // const keyboardShapeold = new CANNON.Box(new CANNON.Vec3(5, 1, 9))
     
     const keyboardShape = threeToCannon(object);
     for (var i = 0; i < keyboardCount; i++) {
-
       const keyboardBody = new CANNON.Body({ mass: 0.5 })
+
   
       keyboardBody.addShape(keyboardShape);
-      keyboardBody.position.set(Math.random() * 10, Math.random() * 10, Math.random() * 10);
+      keyboardBody.position.set(Math.random() * 2, Math.random() * 2, Math.random() * 2);
   
-      // keyboardBody.quaternion.setFromAxisAngle(new CANNON.Vec3(3, 0, 10), 1);
+      // keyboardBody.quaternion.setFromAxisAngle(new CANNON.Vec3(3, 4, 10), 1);
       world.add(keyboardBody);
       bodies.push(keyboardBody);
     }
