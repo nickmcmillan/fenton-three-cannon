@@ -12,6 +12,8 @@ import keyboardObj from './models/model.obj'
 import guitarMtl from './materials/guitar.mtl'
 import guitarObj from './models/guitar.obj'
 
+import { setClickMarker, removeClickMarker } from './utils/handleClickMarker'
+
 const mtlLoader = new MTLLoader();
 const objLoader = new OBJLoader();
 
@@ -31,7 +33,10 @@ var entity
 // Near – This is the distance at which the camera will start rendering scene objects.
 // Far – Anything beyond this distance will not be rendered.Perhaps more commonly known as the draw distance.
 const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.5, 100);
-var scene, renderer;
+var renderer;
+
+export const scene = new THREE.Scene()
+
 
 var planeGeo = new THREE.PlaneGeometry(100, 100);
 var invisoMaterial = new THREE.MeshLambertMaterial({ transparent: true, opacity: 0 });
@@ -41,10 +46,6 @@ var gplane = new THREE.Mesh(planeGeo, invisoMaterial);
 gplane.position.copy(0,0,0)
 gplane.quaternion.copy(0,0,0)
 // gplane.visible = false
-
-
-var markerMaterial = new THREE.MeshLambertMaterial({ color: 0x00cc00 });
-var clickMarker = null
 
 var geometry, material, mesh;
 
@@ -61,10 +62,10 @@ initCannon();
 init();
 animate();
 
-function init() {
+async function init() {
 
   // scene
-  scene = new THREE.Scene();
+  
   scene.fog = new THREE.Fog(0xffffff, 30, 200);
 
   // camera
@@ -126,21 +127,22 @@ function init() {
     materials.preload()
     objLoader.setMaterials(materials)
 
-    for (var i = 0; i < keyboardCount; i++) {
+    objLoader.load(keyboardObj, (object) => {
 
-      objLoader.load(keyboardObj, (object) => {
-
-        object.traverse(node => {
-          if (node instanceof THREE.Mesh) {
-            node.castShadow = true
-            node.receiveShadow = true
-          }
-        })
-
-        meshes.push(object)
-        scene.add(object)
+      object.traverse(node => {
+        if (node instanceof THREE.Mesh) {
+          node.castShadow = true
+          node.receiveShadow = true
+        }
       })
-    }
+
+      for (var i = 0; i < keyboardCount; i++) {
+        const newObj = object.clone()       
+
+        meshes.push(newObj)
+        scene.add(newObj)
+      }
+    })
   })
 
 
@@ -170,21 +172,6 @@ function init() {
 
   cannonDebugRenderer = new CannonDebugRenderer(scene, world);
   
-}
-
-function setClickMarker(x, y, z) {
-  
-  if (!clickMarker) {
-    var shape = new THREE.SphereGeometry(0.2, 8, 8);
-    clickMarker = new THREE.Mesh(shape, markerMaterial);
-    scene.add(clickMarker);
-  }
-  clickMarker.visible = true;
-  clickMarker.position.set(x, y, z);
-}
-
-function removeClickMarker() {
-  clickMarker.visible = false;
 }
 
 function onMouseMove(e) {
@@ -314,7 +301,7 @@ let theta = 30
 const radius = 20
 
 function render() {
-  theta += 0.3
+  theta += 0.1
   camera.position.x = radius * Math.sin(THREE.Math.degToRad(theta))
   camera.position.y = THREE.Math.degToRad(360)
   camera.position.z = radius * Math.cos(THREE.Math.degToRad(theta))
