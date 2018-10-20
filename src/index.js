@@ -1,14 +1,25 @@
 import * as THREE from 'three'
 import * as CANNON from 'cannon'
-
 import './index.css';
+import { MTLLoader, OBJLoader } from 'three-obj-mtl-loader'
+import OrbitControls from 'orbit-controls-es6';
+import { CannonDebugRenderer } from './cannonDebugRenderer'
+import { threeToCannon } from 'three-to-cannon';
+
+import keyboardMtl from './materials/model.mtl'
+import keyboardObj from './models/model.obj'
+
+const mtlLoader = new MTLLoader();
+const objLoader = new OBJLoader();
+
+
+var cannonDebugRenderer
 
 var cubeMesh
-var boxBody
 
-var raycaster = new THREE.Raycaster();
+const raycaster = new THREE.Raycaster();
 
-var world;
+let world;
 var dt = 1 / 60;
 var entity
 
@@ -30,38 +41,33 @@ gplane.quaternion.copy(0,0,0)
 
 
 var markerMaterial = new THREE.MeshLambertMaterial({ color: 0x00cc00 });
-var clickMarker = false
+var clickMarker = null
 
 var geometry, material, mesh;
 
 var jointBody, constrainedBody, mouseConstraint;
 
 var blockCount = 10;
-
-var container = document.createElement('div');
+const keyboardCount = 3
 
 // To be synced
-var meshes = [], bodies = [];
-
-// var planeGeo = new THREE.PlaneGeometry(100, 100);
-// var plane = gplane = new THREE.Mesh(planeGeo, material);
-// plane.visible = false; // Hide it..
-
+const meshes = [] // threejs
+const bodies = [] // cannon
+let shape
 
 initCannon();
 init();
 animate();
 
 function init() {
-  document.body.appendChild(container);
 
   // scene
   scene = new THREE.Scene();
-  scene.fog = new THREE.Fog(0x000000, 500, 10000);
+  scene.fog = new THREE.Fog(0xffffff, 30, 200);
 
   // camera
   
-  camera.position.set(10, 2, 0);
+  camera.position.set(20, 60, 20);
   camera.quaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI / 2);
   scene.add(camera);
 
@@ -76,7 +82,6 @@ function init() {
   light.position.set(d, d, d);
 
   light.castShadow = true;
-  //light.shadowCameraVisible = true;
 
   light.shadow.mapSize.width = 1024;
   light.shadow.mapSize.height = 1024;
@@ -87,17 +92,15 @@ function init() {
   light.shadow.camera.bottom = -d;
 
   light.shadow.camera.far = 3 * d;
-  light.shadow.camera.near = d;
-  // light.shadow.camera./arkness = 0.5;
 
   scene.add(light);
 
   // floor
   geometry = new THREE.PlaneGeometry(100, 100, 1, 1);
   //geometry.applyMatrix( new THREE.Matrix4().makeRotationX( -Math.PI / 2 ) );
-  material = new THREE.MeshLambertMaterial({ color: 0x777777 });
+  material = new THREE.MeshLambertMaterial({ color: 0xffffff });
   
-  //THREE.ColorUtils.adjustHSV( material.color, 0, 0, 0.9 );
+  // THREE.ColorUtils.adjustHSV( material.color, 0, 0, 0.9 );
   mesh = new THREE.Mesh(geometry, material);
   mesh.castShadow = true;
   mesh.quaternion.setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI / 2);
@@ -114,11 +117,43 @@ function init() {
     scene.add(cubeMesh);
   }
 
-  renderer = new THREE.WebGLRenderer({ antialias: true });
+  
+  mtlLoader.load(keyboardMtl, (materials) => {
+    
+    materials.preload()
+    objLoader.setMaterials(materials)
+
+
+    for (var i = 0; i < keyboardCount; i++) {
+
+    
+
+      objLoader.load(keyboardObj, (object) => {
+
+
+        object.traverse(node => {
+          if (node instanceof THREE.Mesh) {
+            node.castShadow = true
+            node.receiveShadow = true
+          }
+        })
+
+
+        meshes.push(object)
+        scene.add(object)
+      })
+    }
+  })
+
+
+  renderer = new THREE.WebGLRenderer({ 
+    canvas: document.getElementById('canvas'),
+    antialias: true,
+  })
+
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setClearColor(scene.fog.color);
 
-  container.appendChild(renderer.domElement);
 
   renderer.gammaInput = true;
   renderer.gammaOutput = true;
@@ -129,6 +164,14 @@ function init() {
   window.addEventListener("mousemove", onMouseMove, false);
   window.addEventListener("mousedown", onMouseDown, false);
   window.addEventListener("mouseup", onMouseUp, false);
+
+  const controls = new OrbitControls(camera, renderer.domElement);
+  controls.enabled = false;
+  controls.maxDistance = 1500;
+  controls.minDistance = 0;
+
+  cannonDebugRenderer = new CannonDebugRenderer(scene, world);
+  
 }
 
 function setClickMarker(x, y, z) {
@@ -149,6 +192,8 @@ function removeClickMarker() {
 function onMouseMove(e) {
   // Move and project on the plane
 
+  
+  
   if (mouseConstraint) {
 
     var mouse3D = new THREE.Vector3();
@@ -159,9 +204,9 @@ function onMouseMove(e) {
 
     raycaster.setFromCamera(mouse3D, camera);
     
-    var intersects = raycaster.intersectObjects([gplane]);     // gplane, not chidlren
+    var intersects = raycaster.intersectObject(gplane, true);     // gplane, not chidlren
 
-    console.log(gplane)
+    // console.log(intersects)
 
     if (!intersects.length) return
     
@@ -188,27 +233,52 @@ function onMouseDown(e) {
 
   raycaster.setFromCamera(mouse3D, camera);
 
-  // calculate objects intersecting the picking ray
-  var intersects = raycaster.intersectObjects(meshes); // or scene.children
   
+  // calculate objects intersecting the picking ray
+
+  var intersects = raycaster.intersectObjects(meshes, true); // or scene.children
+
   entity = intersects[0]
   
   if (!intersects.length) return
-  var pos = entity.point;
+  
+  const pos = entity.point;
+  // console.log(entity.object)
+  
 
-  if (pos && entity.object.geometry instanceof THREE.BoxGeometry) {
-    setClickMarker(pos.x, pos.y, pos.z);
+  
+  // if (pos && entity.object.geometry instanceof THREE.BoxGeometry) {
+  if (pos) {
     
     // Set marker on contact point
-
+    setClickMarker(pos.x, pos.y, pos.z);
+    
     // Set the movement plane
     setScreenPerpCenter(pos);
 
+
+    
     var idx = meshes.indexOf(entity.object);
     if (idx !== -1) {
+      
       addMouseConstraint(pos.x, pos.y, pos.z, bodies[idx]);
+    } else if (entity.object.parent.type === 'Group') {
+      var idx2 = meshes.indexOf(entity.object.parent);
+
+      addMouseConstraint(pos.x, pos.y, pos.z, bodies[idx2]);
+      
+    
     }
   }
+}
+
+function onMouseUp(e) {
+  // Send the remove mouse joint to server
+  removeJointConstraint();
+
+  if (!entity) return
+  // remove the marker
+  removeClickMarker();
 }
 
 // This function creates a virtual movement plane for the mouseJoint to move in
@@ -218,15 +288,6 @@ function setScreenPerpCenter(point) {
 
   // Make it face toward the camera
   gplane.quaternion.copy(camera.quaternion);
-}
-
-function onMouseUp(e) {
-  // Send the remove mouse joint to server
-  removeJointConstraint();
-  
-  if (!entity) return
-  // remove the marker
-  removeClickMarker();
 }
 
 function onWindowResize() {
@@ -242,18 +303,19 @@ function animate() {
   updatePhysics();
   render();
   requestAnimationFrame(animate);
+  cannonDebugRenderer.update();
 }
 
 
 function updatePhysics() {
   world.step(dt);
-  for (var i = 0; i !== meshes.length; i++) {
+  for (var i = 0; i !== meshes.length; i++) {    
     meshes[i].position.copy(bodies[i].position);
     meshes[i].quaternion.copy(bodies[i].quaternion);
   }
 }
 
-let theta = 9.4
+let theta = 4
 const radius = 50;
 
 function render() {
@@ -263,7 +325,9 @@ function render() {
   camera.position.z = radius * Math.cos(THREE.Math.degToRad(theta));
   camera.lookAt(scene.position)
   renderer.render(scene, camera);
+  
 }
+
 
 function initCannon() {
   // Setup our world
@@ -275,7 +339,6 @@ function initCannon() {
   world.broadphase = new CANNON.NaiveBroadphase();
 
   // Create boxes
-
   const boxShape = new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.5));
   for (var i = 0; i < blockCount; i++) {
     const boxBody = new CANNON.Body({ mass: 5 });
@@ -285,20 +348,44 @@ function initCannon() {
     bodies.push(boxBody);
   }
 
+  
+  objLoader.load(keyboardObj, (object) => {
+
+    const keyboardShapeold = new CANNON.Box(new CANNON.Vec3(5, 1, 9))
+    // const keyboardShape = threeToCannon(object, { type: threeToCannon.Type.MESH }); // omg!    
+    
+    const keyboardShape = threeToCannon(object);
+    for (var i = 0; i < keyboardCount; i++) {
+
+      const keyboardBody = new CANNON.Body({ mass: 0.5 })
+  
+      keyboardBody.addShape(keyboardShape);
+      keyboardBody.position.set(Math.random() * 10, Math.random() * 10, Math.random() * 10);
+  
+      // keyboardBody.quaternion.setFromAxisAngle(new CANNON.Vec3(3, 0, 10), 1);
+      world.add(keyboardBody);
+      bodies.push(keyboardBody);
+    }
+
+  })
+
+
   // Create a plane
-  var groundShape = new CANNON.Plane();
-  var groundBody = new CANNON.Body({ mass: 0 });
+  const groundShape = new CANNON.Plane();
+  const groundBody = new CANNON.Body({ mass: 0 });
   groundBody.addShape(groundShape);
   groundBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2);
   world.add(groundBody);
 
   // Joint body
-  var shape = new CANNON.Sphere(0.1);
+  const jointShape = new CANNON.Sphere(0.1);
   jointBody = new CANNON.Body({ mass: 0 });
-  jointBody.addShape(shape);
+  jointBody.addShape(jointShape);
   jointBody.collisionFilterGroup = 0;
   jointBody.collisionFilterMask = 0;
   world.add(jointBody)
+
+
 }
 
 function addMouseConstraint(x, y, z, body) {

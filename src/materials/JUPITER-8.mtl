@@ -1,0 +1,78 @@
+# Exported from Wings 3D 1.4.1
+newmtl 100_copy136_auv
+Ns 100.0
+d 1.0
+illum 2
+Kd 1.0 1.0 1.0
+Ka 1.0 1.0 1.0
+Ks 1.0 1.0 1.0
+Ke 0.0 0.0 0.0
+map_Kd plaque dessous.bmp
+
+newmtl 100_copy137_auv
+Ns 100.0
+d 1.0
+illum 2
+Kd 1.0 1.0 1.0
+Ka 1.0 1.0 1.0
+Ks 1.0 1.0 1.0
+Ke 0.0 0.0 0.0
+map_Kd cote droit.bmp
+
+newmtl 100_sep43_auv
+Ns 100.0
+d 1.0
+illum 2
+Kd 1.0 1.0 1.0
+Ka 1.0 1.0 1.0
+Ks 1.0 1.0 1.0
+Ke 0.0 0.0 0.0
+map_Kd pitchbend2.bmp
+
+newmtl BLACK PLASTIC
+Ns 41.0
+d 1.0
+illum 2
+Kd 0.0 0.0 0.0
+Ka 0.0 0.0 0.0
+Ks 1.0 1.0 1.0
+Ke 0.0 0.0 0.0
+
+newmtl DARK GRAY MATTE
+Ns 99.0
+d 1.0
+illum 2
+Kd 0.011764705882352941 0.011764705882352941 0.011764705882352941
+Ka 0.011764705882352941 0.011764705882352941 0.011764705882352941
+Ks 0.03529411764705882 0.03529411764705882 0.03529411764705882
+Ke 0.0 0.0 0.0
+
+newmtl WHITE PLASTIC
+Ns 48.0
+d 1.0
+illum 2
+Kd 0.6313725490196078 0.6313725490196078 0.6313725490196078
+Ka 0.6313725490196078 0.6313725490196078 0.6313725490196078
+Ks 1.0 1.0 1.0
+Ke 0.0 0.0 0.0
+
+newmtl cube134_auv
+Ns 100.0
+d 1.0
+illum 2
+Kd 1.0 1.0 1.0
+Ka 1.0 1.0 1.0
+Ks 1.0 1.0 1.0
+Ke 0.0 0.0 0.0
+map_Kd panneau2.bmp
+
+newmtl cube134_sep116_auv
+Ns 100.0
+d 1.0
+illum 2
+Kd 1.0 1.0 1.0
+Ka 1.0 1.0 1.0
+Ks 1.0 1.0 1.0
+Ke 0.0 0.0 0.0
+map_Kd tranches alu.bmp 2.bmp
+
