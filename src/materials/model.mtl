@@ -10,7 +10,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd /Users/nickmcmillan/Dropbox/3d objects/Jupiter-8 by Staiff/plaque dessous.bmp
+map_Kd /textures/plaque_dessous.jpg
 
 newmtl 100_copy137_auv
 Ns 100.000000
@@ -21,7 +21,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd /Users/nickmcmillan/Dropbox/3d objects/Jupiter-8 by Staiff/cote droit.bmp
+map_Kd /textures/cote_droit.jpg
 
 newmtl 100_sep43_auv
 Ns 100.000000
@@ -32,7 +32,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd /Users/nickmcmillan/Dropbox/3d objects/Jupiter-8 by Staiff/pitchbend2.bmp
+map_Kd /textures/pitchbend2.jpg
 
 newmtl BLACK_PLASTIC
 Ns 39.215686
@@ -73,7 +73,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd /Users/nickmcmillan/Dropbox/3d objects/Jupiter-8 by Staiff/panneau2.bmp
+map_Kd /textures/panneau2.jpg
 
 newmtl cube134_sep116_auv
 Ns 100.000000
@@ -84,4 +84,4 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd /Users/nickmcmillan/Dropbox/3d objects/Jupiter-8 by Staiff/tranches alu.bmp 2.bmp
+map_Kd /textures/tranches_alu.jpg_2.jpg
