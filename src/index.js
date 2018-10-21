@@ -1,6 +1,5 @@
 import * as THREE from 'three'
 import * as CANNON from 'cannon'
-import './index.css';
 import { MTLLoader, OBJLoader } from 'three-obj-mtl-loader'
 import OrbitControls from 'orbit-controls-es6';
 import { CannonDebugRenderer } from './cannonDebugRenderer'
@@ -12,35 +11,34 @@ import keyboardObj from './models/model.obj'
 import guitarMtl from './materials/guitar.mtl'
 import guitarObj from './models/guitar.obj'
 
-import { setClickMarker, removeClickMarker } from './utils/handleClickMarker'
+import { addJointBody } from './utils/handleJoints'
+import { onMouseMove, onMouseDown, onMouseUp } from './utils/handleInputs'
 
+import './index.css'
 const mtlLoader = new MTLLoader();
 const objLoader = new OBJLoader();
 
 
 let cannonDebugRenderer
 
-// var cubeMesh
+export let world
 
-const raycaster = new THREE.Raycaster();
-
-let world;
 const dt = 1 / 60;
-var entity
+
 
 // FOV – We’re using 45 degrees for our field of view.
 // Apsect – We’re simply dividing the browser width and height to get an aspect ratio.
 // Near – This is the distance at which the camera will start rendering scene objects.
 // Far – Anything beyond this distance will not be rendered.Perhaps more commonly known as the draw distance.
-const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.5, 100);
 var renderer;
 
+export const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.5, 100);
 export const scene = new THREE.Scene()
 
 
 var planeGeo = new THREE.PlaneGeometry(100, 100);
 var invisoMaterial = new THREE.MeshLambertMaterial({ transparent: true, opacity: 0 });
-var gplane = new THREE.Mesh(planeGeo, invisoMaterial);
+export const gplane = new THREE.Mesh(planeGeo, invisoMaterial);
 
 // stabalise
 gplane.position.copy(0,0,0)
@@ -49,14 +47,12 @@ gplane.quaternion.copy(0,0,0)
 
 var geometry, material, mesh;
 
-var jointBody, constrainedBody, mouseConstraint;
-
 const blockCount = 3;
 const keyboardCount = 2
 
 // To be synced
-const meshes = [] // threejs
-const bodies = [] // cannon
+export const meshes = [] // threejs
+export const bodies = [] // cannon
 
 initCannon();
 init();
@@ -174,104 +170,6 @@ async function init() {
   
 }
 
-function onMouseMove(e) {
-  // Move and project on the plane
-
-
-  if (mouseConstraint) {
-
-    var mouse3D = new THREE.Vector3();
-
-    mouse3D.x = (e.clientX / window.innerWidth) * 2 - 1;
-    mouse3D.y = - (e.clientY / window.innerHeight) * 2 + 1;
-    mouse3D.z = 0.5;
-
-    raycaster.setFromCamera(mouse3D, camera);
-    
-    var intersects = raycaster.intersectObject(gplane, true);     // gplane, not chidlren
-
-    if (!intersects.length) return
-    
-    entity = intersects[0]
-
-    const pos = entity.point;
-
-    
-    if (pos) {
-      setClickMarker(pos.x, pos.y, pos.z);
-      moveJointToPoint(pos.x, pos.y, pos.z);
-    }
-  }
-}
-
-function onMouseDown(e) {
-  // Find mesh from a ray
-
-  var mouse3D = new THREE.Vector3();
-
-  mouse3D.x = (e.clientX / window.innerWidth) * 2 - 1;
-  mouse3D.y = - (e.clientY / window.innerHeight) * 2 + 1;
-  mouse3D.z = 0.5;
-
-  raycaster.setFromCamera(mouse3D, camera);
-
-  
-  // calculate objects intersecting the picking ray
-
-  var intersects = raycaster.intersectObjects(meshes, true); // or scene.children
-
-  entity = intersects[0]
-  
-  if (!intersects.length) return
-  
-  const pos = entity.point;
-  // console.log(entity.object)
-  
-
-  
-  // if (pos && entity.object.geometry instanceof THREE.BoxGeometry) {
-  if (pos) {
-    
-    // Set marker on contact point
-    setClickMarker(pos.x, pos.y, pos.z);
-    
-    // Set the movement plane
-    setScreenPerpCenter(pos);
-
-
-    
-    var idx = meshes.indexOf(entity.object);
-    if (idx !== -1) {
-      
-      addMouseConstraint(pos.x, pos.y, pos.z, bodies[idx]);
-    } else if (entity.object.parent.type === 'Group') {
-      var idx2 = meshes.indexOf(entity.object.parent);
-
-      addMouseConstraint(pos.x, pos.y, pos.z, bodies[idx2]);
-      
-    
-    }
-  }
-}
-
-function onMouseUp(e) {
-  // Send the remove mouse joint to server
-  removeJointConstraint();
-
-  if (!entity) return
-  // remove the marker
-  removeClickMarker();
-}
-
-// This function creates a virtual movement plane for the mouseJoint to move in
-function setScreenPerpCenter(point) {
-  // Center at mouse position
-  gplane.position.copy(point);
-
-  // Make it face toward the camera
-  gplane.quaternion.copy(camera.quaternion);
-}
-
 function onWindowResize() {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
@@ -302,6 +200,24 @@ const radius = 20
 
 function render() {
   theta += 0.1
+
+  // if (draggedItem) {
+  //   const pos = draggedItem.point
+
+  //   console.log(pos)
+    
+    
+    
+  
+  //   if (pos) {
+  //     setClickMarker(pos.x, pos.y, pos.z)
+  //     moveJointToPoint(pos.x, pos.y, pos.z)
+  //   }
+
+  // }
+
+  gplane.quaternion.copy(camera.quaternion); // keep the gplane facing us
+  
   camera.position.x = radius * Math.sin(THREE.Math.degToRad(theta))
   camera.position.y = THREE.Math.degToRad(360)
   camera.position.z = radius * Math.cos(THREE.Math.degToRad(theta))
@@ -310,6 +226,9 @@ function render() {
   
 }
 
+const objectLoader = () => {
+  
+}
 
 function initCannon() {
   // Setup our world
@@ -357,48 +276,6 @@ function initCannon() {
   groundBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2);
   world.add(groundBody);
 
-  // Joint body
-  const jointShape = new CANNON.Sphere(0.1);
-  jointBody = new CANNON.Body({ mass: 0 });
-  jointBody.addShape(jointShape);
-  jointBody.collisionFilterGroup = 0;
-  jointBody.collisionFilterMask = 0;
-  world.add(jointBody)
+  addJointBody()
 
-
-}
-
-function addMouseConstraint(x, y, z, body) {
-  // The cannon body constrained by the mouse joint
-  constrainedBody = body;
-
-  // Vector to the clicked point, relative to the body
-  var v1 = new CANNON.Vec3(x, y, z).vsub(constrainedBody.position);
-
-  // Apply anti-quaternion to vector to tranform it into the local body coordinate system
-  var antiRot = constrainedBody.quaternion.inverse();
-  var pivot = antiRot.vmult(v1); // pivot is not in local body coordinates
-
-  // Move the cannon click marker particle to the click position
-  jointBody.position.set(x, y, z);
-
-  // Create a new constraint
-  // The pivot for the jointBody is zero
-  mouseConstraint = new CANNON.PointToPointConstraint(constrainedBody, pivot, jointBody, new CANNON.Vec3(0, 0, 0));
-
-  // Add the constriant to world
-  world.addConstraint(mouseConstraint);
-}
-
-// This functions moves the transparent joint body to a new postion in space
-function moveJointToPoint(x, y, z) {
-  // Move the joint body to a new position
-  jointBody.position.set(x, y, z);
-  mouseConstraint.update();
-}
-
-function removeJointConstraint() {
-  // Remove constriant from world
-  world.removeConstraint(mouseConstraint);
-  mouseConstraint = false;
 }
