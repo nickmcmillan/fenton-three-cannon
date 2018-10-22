@@ -1,6 +1,5 @@
 import * as THREE from 'three'
 import * as CANNON from 'cannon'
-import { MTLLoader, OBJLoader } from 'three-obj-mtl-loader'
 import OrbitControls from 'orbit-controls-es6';
 import { CannonDebugRenderer } from './cannonDebugRenderer'
 import { threeToCannon } from 'three-to-cannon';
@@ -11,20 +10,22 @@ import keyboardObj from './models/model.obj'
 import guitarMtl from './materials/guitar.mtl'
 import guitarObj from './models/guitar.obj'
 
+import TelecasterMtl from './models/Telecaster.mtl'
+import TelecasterObj from './models/Telecaster.obj'
+
 import { addJointBody } from './utils/handleJoints'
 import { onMouseMove, onMouseDown, onMouseUp } from './utils/handleInputs'
 import { onWindowResize } from './utils/handleResize'
 import { loadModel } from './utils/loadModel'
 
 import './index.css'
-const objLoader = new OBJLoader();
 
 
 let cannonDebugRenderer
 
 export let world
 
-const dt = 1 / 60;
+const timeStep = 1 / 60;
 
 
 // FOV – We’re using 45 degrees for our field of view.
@@ -41,12 +42,16 @@ export const scene = new THREE.Scene()
 
 
 var planeGeo = new THREE.PlaneGeometry(100, 100);
-var invisoMaterial = new THREE.MeshLambertMaterial({ transparent: true, opacity: 0 });
+var invisoMaterial = new THREE.MeshLambertMaterial({ transparent: true, opacity: 0, color: 'orange' });
 export const gplane = new THREE.Mesh(planeGeo, invisoMaterial);
+gplane.name = 'gplane'
+// gplane.depthWrite = false
+// gplane.renderOrder = 1
+
 
 // stabalise
-// gplane.position.copy(0,0,0)
-// gplane.quaternion.copy(0,0,0)
+gplane.position.copy(0,0,0)
+gplane.quaternion.copy(0,0,0)
 // gplane.visible = false
 
 var geometry, material, mesh;
@@ -91,9 +96,9 @@ const init = function () {
   light.shadow.camera.far = 3 * d;
 
   scene.add(light);
-  scene.add(gplane);
+  scene.add(gplane)
 
-  // floor
+  // ground
   geometry = new THREE.PlaneGeometry(100, 100, 1, 1);
   //geometry.applyMatrix( new THREE.Matrix4().makeRotationX( -Math.PI / 2 ) );
   material = new THREE.MeshLambertMaterial({ color: 'pink' });
@@ -116,37 +121,39 @@ const init = function () {
     scene.add(cubeMesh)
   }
 
-  loadModel({
-    mtl: keyboardMtl,
-    obj: keyboardObj,
-    quantity: 2,
-    offsets: {
-      x: -0.75,
-      y: -0.3,
-      z: 0,
-    },
-    position: {
-      x: Math.random() * 2,
-      y: Math.random() * 60,
-      z: Math.random() * 2,
-    }
-  })
+  // loadModel({
+  //   name: 'keyboard',
+  //   mtl: keyboardMtl,
+  //   obj: keyboardObj,
+  //   quantity: 2,
+  //   offsets: {
+  //     x: -0.75,
+  //     y: -0.3,
+  //     z: 0,
+  //   },
+  //   position: {
+  //     x: Math.random() * 2,
+  //     y: Math.random() * 60,
+  //     z: Math.random() * 2,
+  //   }
+  // })
   
-  loadModel({
-    mtl: guitarMtl,
-    obj: guitarObj,
-    quantity: 2,
-    offsets: {
-      x: -0.2,
-      y: -4.8,
-      z: 0.1,
-    },
-    position: {
-      x: Math.random() * 2,
-      y: Math.random() * 60,
-      z: Math.random() * 2,
-    }
-  })
+  // loadModel({
+  //   name: 'guitar',
+  //   mtl: TelecasterMtl,
+  //   obj: TelecasterObj,
+  //   quantity: 2,
+  //   offsets: {
+  //     x: -0.2,
+  //     y: -4.8,
+  //     z: 0.1,
+  //   },
+  //   position: {
+  //     x: Math.random() * 2,
+  //     y: Math.random() * 60,
+  //     z: Math.random() * 2,
+  //   }
+  // })
   
 
   renderer.setSize(window.innerWidth, window.innerHeight);
@@ -181,7 +188,7 @@ function animate() {
 
 
 function updatePhysics() {
-  world.step(dt)
+  world.step(timeStep)
   for (var i = 0; i < meshes.length; i++) {
     meshes[i].position.copy(bodies[i].position)
     meshes[i].quaternion.copy(bodies[i].quaternion)
@@ -225,40 +232,34 @@ function initCannon() {
   world = new CANNON.World();
   world.quatNormalizeSkip = 0;
   world.quatNormalizeFast = false;
-  // world.solver.iterations = 2
+  world.solver.iterations = 2
+  console.log(world.defaultContactMaterial)
+  world.defaultContactMaterial.contactEquationRelaxation = 3; // lower = ground is lava
   world.defaultContactMaterial.contactEquationStiffness = 1e8;
+  world.defaultContactMaterial.restitution = 0.5
+  // world.defaultContactMaterial.friction = 1
+  
+  
   // world.defaultContactMaterial.contactEquationRegularizationTime = 3;
 
 
-  world.gravity.set(0, -20, 0);
+  world.gravity.set(0, -30, 0);
   world.broadphase = new CANNON.NaiveBroadphase();
 
   // Create boxes
   const boxShape = new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.5));
   for (var i = 0; i < blockCount; i++) {
-    const boxBody = new CANNON.Body({ mass: 5 });
+    const boxBody = new CANNON.Body({ mass: 50 });
+    console.log(boxBody)
+    boxBody.angularDamping = 0.99
+    // boxBody.linearDamping = 0.5
+
+    
     boxBody.addShape(boxShape);
     boxBody.position.set(Math.random() * 4, Math.random() * 2, Math.random() * 4);
     world.add(boxBody);
     bodies.push(boxBody);
   }
-
-
-  // const keyboardShape = new CANNON.Box(new CANNON.Vec3(1.5, 0.3, 3), )
-  
-  // // const keyboardShape = threeToCannon(object);
-  // for (var i = 0; i < keyboardCount; i++) {
-  //   const keyboardBody = new CANNON.Body({ mass: 5, shape: keyboardShape } )
-
-  //   // keyboardBody.position.set(Math.random() * 2, Math.random() * 2, Math.random() * 2);
-
-  //   // keyboardBody.quaternion.setFromAxisAngle(new CANNON.Vec3(3, 4, 10), 1);
-  //   world.add(keyboardBody);
-  //   bodies.push(keyboardBody);
-  // }
-
-
-
 
   // Create a plane
   const groundShape = new CANNON.Plane();

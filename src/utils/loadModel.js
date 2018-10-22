@@ -21,7 +21,7 @@ function promisifyLoader(loader, onProgress) {
 }
 
 
-export const loadModel = async ({mtl, obj, quantity, position, offsets}) => {
+export const loadModel = async ({name, mtl, obj, quantity, position, offsets}) => {
 
   const mtlLoader = new MTLLoader()
   const objLoader = new OBJLoader()
@@ -34,6 +34,8 @@ export const loadModel = async ({mtl, obj, quantity, position, offsets}) => {
 
   const objPromiseLoader = promisifyLoader(objLoader)
   const object = await objPromiseLoader.load(obj).then(obj => obj)
+
+  object.name = name
   
   object.traverse(child => {
     child.position.x = offsets.x || 0
@@ -62,13 +64,14 @@ export const loadModel = async ({mtl, obj, quantity, position, offsets}) => {
     
     // add to cannon
     const body = new CANNON.Body({
-      mass: 50,
+      mass: 500,
       shape,
       // fixedRotation: true,
-      linearDamping: 0.2,
+      // linearDamping: 0.5,
+      angularDamping: 0.99,
     })
 
-    body.position.set(position.x, position.y, position.z, );
+    body.position.set(position.x, position.y, position.z )
 
     world.add(body)
     bodies.push(body)

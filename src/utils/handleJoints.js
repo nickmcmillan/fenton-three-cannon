@@ -1,11 +1,20 @@
 import * as CANNON from 'cannon'
 import { world } from '../index'
 
-const jointBody = new CANNON.Body({ mass: 0 })
+// const jointShape = new CANNON.Sphere(0.1)
+const jointBody = new CANNON.Body({ 
+  mass: 0,
+  angularDamping: 0.01,
+  // shape: jointShape,
+  collisionFilterGroup: 0,
+  collisionFilterMask: 0,
+})
+
 
 export let mouseConstraint
 
 export const addMouseConstraint = function (x, y, z, constrainedBody) {
+  
   // constrainedBody = The cannon body constrained by the mouse joint
 
   // Vector to the clicked point, relative to the body
@@ -20,7 +29,7 @@ export const addMouseConstraint = function (x, y, z, constrainedBody) {
 
   // Create a new constraint
   // The pivot for the jointBody is zero
-  mouseConstraint = new CANNON.PointToPointConstraint(constrainedBody, pivot, jointBody, new CANNON.Vec3(0, 0, 0))
+  mouseConstraint = new CANNON.PointToPointConstraint(constrainedBody, pivot, jointBody, new CANNON.Vec3(0, 0, 0))  
 
   // Add the constriant to world
   world.addConstraint(mouseConstraint)
@@ -42,11 +51,5 @@ export const removeJointConstraint = function () {
 }
 
 export const addJointBody = function() {
-  // Joint body
-  const jointShape = new CANNON.Sphere(0.1)
-  
-  jointBody.addShape(jointShape)
-  jointBody.collisionFilterGroup = 0
-  jointBody.collisionFilterMask = 0
   world.add(jointBody)
 }
