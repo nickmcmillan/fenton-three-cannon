@@ -2,13 +2,17 @@ import * as THREE from 'three'
 import * as CANNON from 'cannon'
 import OrbitControls from 'orbit-controls-es6';
 import { CannonDebugRenderer } from './cannonDebugRenderer'
-import { threeToCannon } from 'three-to-cannon';
+// import { threeToCannon } from 'three-to-cannon';
 
 import keyboardMtl from './materials/model.mtl'
 import keyboardObj from './models/model.obj'
 
 import guitarMtl from './materials/guitar.mtl'
 import guitarObj from './models/guitar.obj'
+
+import op1Gltf from './models/op1d.gltf'
+import bunny from './models/bunny.drc'
+// import op1Bin from './models/op1.bin'
 
 import TelecasterMtl from './models/Telecaster.mtl'
 import TelecasterObj from './models/Telecaster.obj'
@@ -17,13 +21,16 @@ import { addJointBody } from './utils/handleJoints'
 import { onMouseMove, onMouseDown, onMouseUp } from './utils/handleInputs'
 import { onWindowResize } from './utils/handleResize'
 import { loadModel } from './utils/loadModel'
+import { loadG } from './utils/loadG'
+import { addGround } from './add/addGround'
+import { initClickMarker } from './utils/handleClickMarker'
 
 import './index.css'
 
 
 let cannonDebugRenderer
 
-export let world
+export const world = new CANNON.World()
 
 const timeStep = 1 / 60;
 
@@ -41,23 +48,27 @@ export const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window
 export const scene = new THREE.Scene()
 
 
-var planeGeo = new THREE.PlaneGeometry(100, 100);
-var invisoMaterial = new THREE.MeshLambertMaterial({ transparent: true, opacity: 0, color: 'orange' });
-export const gplane = new THREE.Mesh(planeGeo, invisoMaterial);
+const planeGeo = new THREE.PlaneGeometry(100, 100);
+const invisoMaterial = new THREE.MeshLambertMaterial({ transparent: true, opacity: 0, color: 'orange' });
+// export const gplane = new THREE.Mesh(planeGeo, invisoMaterial);
+export const backVector = new THREE.Vector3(0, 0, -1);
+export const gplane = new THREE.Plane()
+console.log(gplane)
+
 gplane.name = 'gplane'
 // gplane.depthWrite = false
 // gplane.renderOrder = 1
 
 
 // stabalise
-gplane.position.copy(0,0,0)
-gplane.quaternion.copy(0,0,0)
+// gplane.position.copy(0,0,0)
+// gplane.quaternion.copy(0,0,0)
 // gplane.visible = false
 
-var geometry, material, mesh;
 
-export const blockCount = 3;
-export const keyboardCount = 2
+
+export const cubeCount = 1;
+export const keyboardCount = 1
 
 // To be synced
 export const meshes = [] // threejs
@@ -69,10 +80,10 @@ const init = function () {
   // camera
   camera.position.set(20, 60, 20);
   camera.quaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI / 2);
+  scene.add(camera)
 
   // scene
   scene.fog = new THREE.Fog(0xffffff, 30, 200)
-  scene.add(camera)
 
   // lights
   scene.add(new THREE.AmbientLight(0x666666));
@@ -81,7 +92,7 @@ const init = function () {
   const light = new THREE.DirectionalLight(0xffffff, 1.25);
   const d = 20
 
-  light.position.set(d, d, d);
+  light.position.set(d, d, d)
 
   light.castShadow = true;
 
@@ -95,42 +106,51 @@ const init = function () {
 
   light.shadow.camera.far = 3 * d;
 
-  scene.add(light);
-  scene.add(gplane)
+  scene.add(light)
+  // scene.add(gplane)
 
-  // ground
-  geometry = new THREE.PlaneGeometry(100, 100, 1, 1);
-  //geometry.applyMatrix( new THREE.Matrix4().makeRotationX( -Math.PI / 2 ) );
-  material = new THREE.MeshLambertMaterial({ color: 'pink' });
-  
-  // THREE.ColorUtils.adjustHSV( material.color, 0, 0, 0.9 );
-  mesh = new THREE.Mesh(geometry, material);
-  mesh.castShadow = true;
-  mesh.quaternion.setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI / 2);
-  mesh.receiveShadow = true
-  scene.add(mesh);
+  addGround()
 
   // cubes
   const cubeGeo = new THREE.BoxGeometry(1, 1, 1, 10, 10);
   const cubeMaterial = new THREE.MeshPhongMaterial({ color: 0xbad455 });
 
-  for (let i = 0; i < blockCount; i++) {
+  for (let i = 0; i < cubeCount; i++) {
     const cubeMesh = new THREE.Mesh(cubeGeo, cubeMaterial)
     cubeMesh.castShadow = true
+    cubeMesh.name = `cube-${i}`
     meshes.push(cubeMesh)
     scene.add(cubeMesh)
   }
 
-  // loadModel({
-  //   name: 'keyboard',
-  //   mtl: keyboardMtl,
-  //   obj: keyboardObj,
-  //   quantity: 2,
+  loadModel({
+    name: 'keyboard',
+    mtl: keyboardMtl,
+    obj: keyboardObj,
+    quantity: keyboardCount,
+    offsets: {
+      x: -0.75,
+      y: -0.3,
+      z: 0,
+    },
+    position: {
+      x: Math.random() * 2,
+      y: Math.random() * 60,
+      z: Math.random() * 2,
+    }
+  })
+
+  // loadG({
+  //   name: 'op1',
+  //   gltf: bunny,
+  //   // bin: op1Bin,
+  //   quantity: 1,
   //   offsets: {
   //     x: -0.75,
   //     y: -0.3,
   //     z: 0,
   //   },
+
   //   position: {
   //     x: Math.random() * 2,
   //     y: Math.random() * 60,
@@ -138,31 +158,34 @@ const init = function () {
   //   }
   // })
   
-  // loadModel({
-  //   name: 'guitar',
-  //   mtl: TelecasterMtl,
-  //   obj: TelecasterObj,
-  //   quantity: 2,
-  //   offsets: {
-  //     x: -0.2,
-  //     y: -4.8,
-  //     z: 0.1,
-  //   },
-  //   position: {
-  //     x: Math.random() * 2,
-  //     y: Math.random() * 60,
-  //     z: Math.random() * 2,
-  //   }
-  // })
+  loadModel({
+    name: 'guitar',
+    mtl: TelecasterMtl,
+    obj: TelecasterObj,
+    quantity: 1,
+    offsets: {
+      x: -0.2,
+      y: -4.8,
+      z: 0.1,
+    },
+    position: {
+      x: Math.random() * 2,
+      y: Math.random() * 60,
+      z: Math.random() * 2,
+    }
+  })
   
 
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setClearColor(scene.fog.color);
 
 
-  renderer.gammaInput = true;
-  renderer.gammaOutput = true;
+  // renderer.gammaInput = true;
+
   renderer.shadowMap.enabled = true;
+  renderer.gammaOutput = true;
+  renderer.gammaFactor = 2.2;
+
 
   window.addEventListener('resize', onWindowResize, false)
 
@@ -216,12 +239,12 @@ function render() {
 
   // }
 
-  gplane.quaternion.copy(camera.quaternion); // keep the gplane facing us
   
   camera.position.x = radius * Math.sin(THREE.Math.degToRad(theta))
   camera.position.y = THREE.Math.degToRad(360)
   camera.position.z = radius * Math.cos(THREE.Math.degToRad(theta))
   camera.lookAt(scene.position)
+  // gplane.quaternion.copy(camera.quaternion); // keep the gplane facing us
   renderer.render(scene, camera)
   
 }
@@ -229,11 +252,10 @@ function render() {
 
 function initCannon() {
   // Setup our world
-  world = new CANNON.World();
   world.quatNormalizeSkip = 0;
   world.quatNormalizeFast = false;
-  world.solver.iterations = 2
-  console.log(world.defaultContactMaterial)
+  // world.solver.iterations = 2
+  // console.log(world.defaultContactMaterial)
   world.defaultContactMaterial.contactEquationRelaxation = 3; // lower = ground is lava
   world.defaultContactMaterial.contactEquationStiffness = 1e8;
   world.defaultContactMaterial.restitution = 0.5
@@ -248,9 +270,10 @@ function initCannon() {
 
   // Create boxes
   const boxShape = new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.5));
-  for (var i = 0; i < blockCount; i++) {
+  for (var i = 0; i < cubeCount; i++) {
     const boxBody = new CANNON.Body({ mass: 50 });
-    console.log(boxBody)
+    boxBody.name = `cube-${i}`
+    // console.log(boxBody)
     boxBody.angularDamping = 0.99
     // boxBody.linearDamping = 0.5
 
@@ -261,16 +284,10 @@ function initCannon() {
     bodies.push(boxBody);
   }
 
-  // Create a plane
-  const groundShape = new CANNON.Plane();
-  const groundBody = new CANNON.Body({ mass: 0 }) // ground has mass = 0 which makes it static
-  groundBody.addShape(groundShape);
-  groundBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2);
-  world.add(groundBody);
 
   addJointBody()
 
-  cannonDebugRenderer = new CannonDebugRenderer(scene, world);
+  cannonDebugRenderer = new CannonDebugRenderer(scene, world)
 
 }
 
@@ -278,3 +295,4 @@ function initCannon() {
 init()
 initCannon()
 animate()
+initClickMarker()

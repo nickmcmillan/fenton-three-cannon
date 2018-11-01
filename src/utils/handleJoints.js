@@ -1,11 +1,10 @@
 import * as CANNON from 'cannon'
 import { world } from '../index'
 
-// const jointShape = new CANNON.Sphere(0.1)
 const jointBody = new CANNON.Body({ 
   mass: 0,
   angularDamping: 0.01,
-  // shape: jointShape,
+  // shape: new CANNON.Sphere(0.1),
   collisionFilterGroup: 0,
   collisionFilterMask: 0,
 })
@@ -14,6 +13,7 @@ const jointBody = new CANNON.Body({
 export let mouseConstraint
 
 export const addMouseConstraint = function (x, y, z, constrainedBody) {
+  
   
   // constrainedBody = The cannon body constrained by the mouse joint
 

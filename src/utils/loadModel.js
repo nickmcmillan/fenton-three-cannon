@@ -3,7 +3,7 @@ import * as CANNON from 'cannon'
 import { MTLLoader, OBJLoader } from 'three-obj-mtl-loader'
 
 import { meshes, scene, world, bodies } from '../index'
-
+// import { threeToCannon } from 'three-to-cannon';
 
 
 function promisifyLoader(loader, onProgress) {
@@ -47,9 +47,10 @@ export const loadModel = async ({name, mtl, obj, quantity, position, offsets}) =
     }
   })
 
-  // get dimensions from three
+  // get dimensions from three  
   const tempBox = new THREE.Box3().setFromObject(object)
   const { x, y, z } = tempBox.getSize()
+  
   // apply dimensions to cannon
   const shape = new CANNON.Box(new CANNON.Vec3(x/2, y/2, z/2))
   
@@ -70,6 +71,8 @@ export const loadModel = async ({name, mtl, obj, quantity, position, offsets}) =
       // linearDamping: 0.5,
       angularDamping: 0.99,
     })
+    
+    body.name = name
 
     body.position.set(position.x, position.y, position.z )
 
