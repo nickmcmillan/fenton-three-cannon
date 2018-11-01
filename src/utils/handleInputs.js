@@ -2,41 +2,20 @@ import * as THREE from 'three'
 import { camera, meshes, bodies, gplane, scene, backVector } from '../index'
 import { addMouseConstraint, moveJointToPoint, removeJointConstraint, addJointBody, mouseConstraint } from './handleJoints'
 import { setClickMarker, removeClickMarker } from './handleClickMarker'
+import { getCameraRay } from './getCameraRay'
 
 const raycaster = new THREE.Raycaster()
 const mouse3D = new THREE.Vector3()
 const tempVector2 = new THREE.Vector2();
 
+
 let draggedItem
 
-const _getRelativeMouseCoords = function (screenMouseCoords) {
-
-  const relativeMouseCoords = screenMouseCoords.clone()
-    .sub(tempVector2.set(0, 0))
-    .divide(tempVector2.set(window.innerWidth, window.innerHeight));
-
-  // mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-  // mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-
-  relativeMouseCoords.x = relativeMouseCoords.x * 2 - 1;
-  relativeMouseCoords.y = -relativeMouseCoords.y * 2 + 1;
-
-  return relativeMouseCoords;
+export const lastPos = {
+  x: 0,
+  y: 0
 }
 
-const getCameraRay = function (mouseCoords) {
-  const relativeMouseCoords = _getRelativeMouseCoords(mouseCoords);
-
-  const originalRay = raycaster.ray.clone();
-
-  raycaster.setFromCamera(relativeMouseCoords, camera);
-
-  const resultRay = raycaster.ray.clone();
-
-  raycaster.ray.copy(originalRay);
-
-  return resultRay;
-}
 
 export const onMouseDown = function (e) {
   
@@ -44,6 +23,9 @@ export const onMouseDown = function (e) {
   mouse3D.x =  (e.clientX / window.innerWidth) * 2 - 1
   mouse3D.y = -(e.clientY / window.innerHeight) * 2 + 1
   mouse3D.z = 0.5
+
+  lastPos.x = e.clientX
+  lastPos.y = e.clientY
 
   raycaster.setFromCamera(mouse3D, camera)
 
@@ -67,18 +49,6 @@ export const onMouseDown = function (e) {
   // Set the movement gplane
   // setScreenPerpCenter(pos)
 
-  const name = draggedItem.object.parent.name || draggedItem.object.name
-
-  console.log(bodies)
-  console.log(name)
-  console.log(bodies.find(x => x.name === name))
-  
-  
-  
-
-  
-
-  const targetBody = bodies.find(x => x.name === name)
   
 
   // console.log(targetBody)
@@ -86,7 +56,10 @@ export const onMouseDown = function (e) {
   gplane.setFromNormalAndCoplanarPoint(backVector.clone()
     .applyQuaternion(camera.quaternion), pos);
 
-    
+  // grouped objects are risky. 
+  const name = draggedItem.object.parent.name || draggedItem.object.name
+  const targetBody = bodies.find(x => x.name === name)
+
   addMouseConstraint(pos.x, pos.y, pos.z, targetBody)
   
   // if (idx !== -1) {
@@ -103,9 +76,9 @@ export const onMouseMove = function (e) {
   
   if (mouseConstraint) {
 
-    mouse3D.x = (e.clientX / window.innerWidth) * 2 - 1
-    mouse3D.y = - (e.clientY / window.innerHeight) * 2 + 1
-    mouse3D.z = 0.5
+    lastPos.x = e.clientX
+    lastPos.y = e.clientY
+
 
     const ray = getCameraRay(new THREE.Vector2(e.clientX, e.clientY));
     

@@ -17,13 +17,15 @@ import bunny from './models/bunny.drc'
 import TelecasterMtl from './models/Telecaster.mtl'
 import TelecasterObj from './models/Telecaster.obj'
 
-import { addJointBody } from './utils/handleJoints'
-import { onMouseMove, onMouseDown, onMouseUp } from './utils/handleInputs'
+import { addJointBody, mouseConstraint, moveJointToPoint } from './utils/handleJoints'
+import { onMouseMove, onMouseDown, onMouseUp, lastPos  } from './utils/handleInputs'
 import { onWindowResize } from './utils/handleResize'
 import { loadModel } from './utils/loadModel'
 import { loadG } from './utils/loadG'
 import { addGround } from './add/addGround'
-import { initClickMarker } from './utils/handleClickMarker'
+import { setClickMarker, initClickMarker } from './utils/handleClickMarker'
+
+import { getCameraRay } from './utils/getCameraRay'
 
 import './index.css'
 
@@ -83,7 +85,7 @@ const init = function () {
   scene.add(camera)
 
   // scene
-  scene.fog = new THREE.Fog(0xffffff, 30, 200)
+  scene.fog = new THREE.Fog(0xccffff, 30, 100)
 
   // lights
   scene.add(new THREE.AmbientLight(0x666666));
@@ -221,23 +223,27 @@ function updatePhysics() {
 let theta = 30
 const radius = 20
 
+const updateDragPosition = function() {
+   
+  if (mouseConstraint) {
+    const ray = getCameraRay(new THREE.Vector2(lastPos.x, lastPos.y));
+
+    const dragPos = gplane.intersectLine(
+      new THREE.Line3(ray.origin, ray.origin
+        .clone()
+        .add(ray.direction
+          .clone()
+          .multiplyScalar(10000))));
+    console.log(dragPos)
+    setClickMarker(dragPos.x, dragPos.y, dragPos.z)
+    moveJointToPoint(dragPos.x, dragPos.y, dragPos.z)
+  }
+}
+
 function render() {
   theta += 0.04
 
-  // if (draggedItem) {
-  //   const pos = draggedItem.point
-
-  //   console.log(pos)
-    
-    
-    
-  
-  //   if (pos) {
-  //     setClickMarker(pos.x, pos.y, pos.z)
-  //     moveJointToPoint(pos.x, pos.y, pos.z)
-  //   }
-
-  // }
+  updateDragPosition() // could be expensive
 
   
   camera.position.x = radius * Math.sin(THREE.Math.degToRad(theta))
