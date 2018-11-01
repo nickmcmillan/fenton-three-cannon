@@ -1,3 +1,6 @@
+import * as THREE from 'three'
+import { scene } from './index'
+
 export default function addBlocks() {
   var geometry = new THREE.BoxBufferGeometry(100, 100, 100);
 

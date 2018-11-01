@@ -1,528 +1,304 @@
 import * as THREE from 'three'
-import * as OIMO from 'oimo'
+import * as CANNON from 'cannon'
+import OrbitControls from 'orbit-controls-es6';
+import { CannonDebugRenderer } from './cannonDebugRenderer'
+// import { threeToCannon } from 'three-to-cannon';
 
-import './index.css';
+import keyboardMtl from './materials/model.mtl'
+import keyboardObj from './models/model.obj'
 
-var isMobile = false
-var antialias = true
+import guitarMtl from './materials/guitar.mtl'
+import guitarObj from './models/guitar.obj'
 
-let isDragging = false
-var intersects  = []
+import op1Gltf from './models/op1d.gltf'
+import bunny from './models/bunny.drc'
+// import op1Bin from './models/op1.bin'
 
-const max = 1
+import TelecasterMtl from './models/Telecaster.mtl'
+import TelecasterObj from './models/Telecaster.obj'
 
-var raycaster = new THREE.Raycaster();
-var mouse = new THREE.Vector2()
+import { addJointBody, mouseConstraint, moveJointToPoint } from './utils/handleJoints'
+import { onMouseMove, onMouseDown, onMouseUp, lastPos  } from './utils/handleInputs'
+import { onWindowResize } from './utils/handleResize'
+import { loadModel } from './utils/loadModel'
+import { loadG } from './utils/loadG'
+import { addGround } from './add/addGround'
+import { setClickMarker, initClickMarker } from './utils/handleClickMarker'
 
-const dotGeometry = new THREE.SphereGeometry(5, 16, 16)
-const dotMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 })
+import { getCameraRay } from './utils/getCameraRay'
 
-const dot = new THREE.Mesh(dotGeometry, dotMaterial)
-// three var
-var camera, scene, light, renderer, canvas, controls;
-// var grounds = [];
-var geoBox, geoCyl, buffgeoSphere;
-var matBox, matSphere, matBoxSleep, matSphereSleep, matGround;
-var types, sizes, positions, chairGeometry;
-var ToRad = Math.PI / 180;
-
-var world = null;
-
-const bodies = [] // physics
-const meshes = [] // threejs
-
-var infos;
-init();
-loop();
-var dotPhysics
+import './index.css'
 
 
+let cannonDebugRenderer
+
+export const world = new CANNON.World()
+
+const timeStep = 1 / 60;
 
 
-function init() {
-  var n = navigator.userAgent;
-  if (n.match(/Android/i) || n.match(/webOS/i) || n.match(/iPhone/i) || n.match(/iPad/i) || n.match(/iPod/i) || n.match(/BlackBerry/i) || n.match(/Windows Phone/i)) { isMobile = true;  antialias = false; }
-  infos = document.getElementById("info");
-  canvas = document.getElementById("canvas");
-  camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 1, 10000 );
-  // camera.position.set(0, 300, 500);
-  scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xffffff);
+// FOV – We’re using 45 degrees for our field of view.
+// Apsect – We’re simply dividing the browser width and height to get an aspect ratio.
+// Near – This is the distance at which the camera will start rendering scene objects.
+// Far – Anything beyond this distance will not be rendered.Perhaps more commonly known as the draw distance.
+export const renderer = new THREE.WebGLRenderer({
+  canvas: document.getElementById('canvas'),
+  antialias: true,
+})
 
+export const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.5, 100);
+export const scene = new THREE.Scene()
+
+
+const planeGeo = new THREE.PlaneGeometry(100, 100);
+const invisoMaterial = new THREE.MeshLambertMaterial({ transparent: true, opacity: 0, color: 'orange' });
+// export const gplane = new THREE.Mesh(planeGeo, invisoMaterial);
+export const backVector = new THREE.Vector3(0, 0, -1);
+export const gplane = new THREE.Plane()
+console.log(gplane)
+
+gplane.name = 'gplane'
+// gplane.depthWrite = false
+// gplane.renderOrder = 1
+
+
+// stabalise
+// gplane.position.copy(0,0,0)
+// gplane.quaternion.copy(0,0,0)
+// gplane.visible = false
+
+
+
+export const cubeCount = 1;
+export const keyboardCount = 1
+
+// To be synced
+export const meshes = [] // threejs
+export const bodies = [] // cannon
+
+
+
+const init = function () {
+  // camera
+  camera.position.set(20, 60, 20);
+  camera.quaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI / 2);
+  scene.add(camera)
+
+  // scene
+  scene.fog = new THREE.Fog(0xccffff, 30, 100)
+
+  // lights
+  scene.add(new THREE.AmbientLight(0x666666));
   
 
-  // scene.add(new THREE.AmbientLight(0x444444))
+  const light = new THREE.DirectionalLight(0xffffff, 1.25);
+  const d = 20
 
-  renderer = new THREE.WebGLRenderer({ 
-    canvas,
-    precision: "mediump",
-    antialias
-  })
-  renderer.setSize( window.innerWidth, window.innerHeight )
-  renderer.setPixelRatio(window.devicePixelRatio);
+  light.position.set(d, d, d)
 
-  // addBlocks()
-  
-  var materialType = 'MeshBasicMaterial';
-  
-  if (!isMobile) {
-    scene.add( new THREE.AmbientLight( 0x3D4143 ) );
-    light = new THREE.DirectionalLight( 0xffffff , 1);
-    light.position.set( 300, 1000, 500 );
-    light.target.position.set( 0, 0, 0 );
-    light.castShadow = true;
-    var d = 300;
-    light.shadow.camera = new THREE.OrthographicCamera( -d, d, d, -d,  500, 1600 );
-    light.shadow.bias = 0.0001;
-    light.shadow.mapSize.width = light.shadow.mapSize.height = 1024;
-    scene.add( light );
-    materialType = 'MeshPhongMaterial';
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFShadowMap;//THREE.BasicShadowMap;
+  light.castShadow = true;
+
+  light.shadow.mapSize.width = 1024;
+  light.shadow.mapSize.height = 1024;
+
+  light.shadow.camera.left = -d;
+  light.shadow.camera.right = d;
+  light.shadow.camera.top = d;
+  light.shadow.camera.bottom = -d;
+
+  light.shadow.camera.far = 3 * d;
+
+  scene.add(light)
+  // scene.add(gplane)
+
+  addGround()
+
+  // cubes
+  const cubeGeo = new THREE.BoxGeometry(1, 1, 1, 10, 10);
+  const cubeMaterial = new THREE.MeshPhongMaterial({ color: 0xbad455 });
+
+  for (let i = 0; i < cubeCount; i++) {
+    const cubeMesh = new THREE.Mesh(cubeGeo, cubeMaterial)
+    cubeMesh.castShadow = true
+    cubeMesh.name = `cube-${i}`
+    meshes.push(cubeMesh)
+    scene.add(cubeMesh)
   }
-  
-  geoBox = new THREE.BoxGeometry( 1, 1, 1 );
-  geoCyl = new THREE.CylinderGeometry( 0.5, 0.5, 1, 6, 1 );
-  buffgeoSphere = new THREE.BufferGeometry();
-  buffgeoSphere.fromGeometry( new THREE.SphereGeometry( 1 , 20, 10 ) );
-  
-  matSphere = new THREE[materialType]( { map: basicTexture(0), name:'sph' ,specular: 0xFFFFFF, shininess: 120, transparent: true, opacity: 0.9 } );
-  matBox = new THREE[materialType]( {  map: basicTexture(2), name:'box' } );
-  matSphereSleep = new THREE[materialType]( { map: basicTexture(1), name:'ssph', specular: 0xFFFFFF, shininess: 120 , transparent: true, opacity: 0.7} );
-  matBoxSleep = new THREE[materialType]( {  map: basicTexture(3), name:'sbox' } );
-  matGround = new THREE[materialType]( { shininess: 10, color: 'pink', transparent: false, opacity: 0.5 } );
-  
-  
-  // events
-  window.addEventListener( 'resize', onWindowResize, false );
-  renderer.domElement.addEventListener('mousedown', handleMouseDown, false);
-  renderer.domElement.addEventListener('mouseup', handleMouseUp, false);
-  renderer.domElement.addEventListener('mousemove', handleMouseMove, false);
-  
-  // physics
-  initOimoPhysics()
-}
 
-function handleMouseUp(e) {
-  isDragging = false
-  // world.removeJoint(joint)
-  // joint.detach()
-  // joint.dispose()
-  // joint.remove()
-  // console.log(joint)
-  
-  // joint = undefined
-  // dot.position.copy(intersects[0].point) // draw the dot
-  
-  scene.remove(dot)
-  // console.log(raycaster, scene)
-  // mouse.x = 0
-  // mouse.y = 0
-  
-}
-
-function handleMouseDown(e) {
-  
-  e.preventDefault();
-  mouse.x = (e.clientX / renderer.domElement.clientWidth) * 2 - 1;
-  mouse.y = -(e.clientY / renderer.domElement.clientHeight) * 2 + 1;
-
-  raycaster.setFromCamera(mouse, camera);
-
-  intersects = raycaster.intersectObjects(scene.children, true);
-
-  isDragging = true
-
-  if (intersects.length) {
-
-    scene.add(dot)
-    
-    const { x, y, z } = intersects[0].point
-    dotPhysics.setPosition(new THREE.Vector3(intersects[0].point))
-    
-    dot.position.copy(intersects[0].point) // draw the dot
-
-    if (joint) {
-      console.log(joint)
-      joint.awake()
-      joint.updateAnchorPoints()
-      joint.detach()
-      joint.remove()      
-      world.removeJoint(joint)
+  loadModel({
+    name: 'keyboard',
+    mtl: keyboardMtl,
+    obj: keyboardObj,
+    quantity: keyboardCount,
+    offsets: {
+      x: -0.75,
+      y: -0.3,
+      z: 0,
+    },
+    position: {
+      x: Math.random() * 2,
+      y: Math.random() * 60,
+      z: Math.random() * 2,
     }
-
-    
-
-    joint = world.add({
-      type: 'jointHinge', // type of joint : jointDistance, jointHinge, jointPrisme, jointSlide, jointWheel
-      body1: bodies[0], // name or id of attach rigidbody
-      body2: dotPhysics, // name or id of attach rigidbody
-      name: 'yo',
-      pos1: [x, y, z],
-      // pos2: [dotPhysics.position.x, dotPhysics.position.y, dotPhysics.position.z],
-      frequency: 4,
-      dampingRatio: 1,
-      // localAnchor1: new THREE.Vector3(x, y, z),
-      // localAnchor2: new THREE.Vector3(dotPhysics.position.x, dotPhysics.position.y, dotPhysics.position.z)
-    })
-  
-    
-
-    
-    
-    // intersects[0].object.material.color.setHex(Math.random() * 0xffffff);
-
-  }
-}
-
-var joint
-
-function handleMouseMove(e) {
-  e.preventDefault()
-
-  if (!isDragging) return
-  
-  mouse.x = (e.clientX / renderer.domElement.clientWidth) * 2 - 1;
-  mouse.y = -(e.clientY / renderer.domElement.clientHeight) * 2 + 1;
-
-  raycaster.setFromCamera(mouse, camera);
-  intersects = raycaster.intersectObjects(scene.children, true);
-
-  if (intersects.length) {
-
-    const { x, y, z } = intersects[0].point
-
-    dot.position.copy(x, y, z) // draw the dot
-    dotPhysics.setPosition(new THREE.Vector3(x, y, z))
-  }
-
-
-
-
-  // document.body.classList.add('cursor-grab')
-
-  //var screenPos: Vec3 = new Vec3(screenX * viewInfo.screenWidth, screenY * viewInfo.screenHeight, -viewInfo.screenDistance);
-
-  // var screenX = mouse.x / renderer.domElement.clientWidth - 0.5;
-  // var screenY = 0.5 - mouse.y / renderer.domElement.clientHeight;
-  // var screenPos = new THREE.Vector3(screenX * renderer.domElement.clientWidth, screenY * renderer.domElement.clientHeight, 30)
-
-  // console.log(screenPos)
-  
-  // const { x, y, z } = intersects[0].point
-  // console.log(dotPhysics)
-  
-  
-  
-  // dotPhysics.setPosition(new THREE.Vector3(x, y, z).clone().negate().normalize().multiplyScalar(0.1))
-  // dotPhysics.position.copy(intersects[0].object.position)
-  // dotPhysics.quaternion.copy(intersects[0].object.quaternion)
-  
-  
-  // bodies[0].position.copy(intersects[0].point.add(new THREE.Vector3(x, y, z)));
-
-  
-  // console.log(joint)
-  
-
-  // dotPhysics.getQuaternion()
-
-  // console.log(intersects[0])
-  
-
-  // intersects[0].object.quaternion.copy(dotPhysics.getQuaternion())
-
-  // const force = intersects[0].object.position.clone().negate().normalize().multiplyScalar(0.1)
-  
-
-
-  if (bodies[0].type === 1) {
-    // console.log(bodies[0])
-    // var center = new THREE.Vector3(x,y,z);
-    // bodies[0].applyImpulse(center, force)
-
-    // bodies[0].setQuaternion(center, force)
-
-  }
-
-
-
-  // dotPhysics.setQuaternion(center, 1)
-  
-  // dot.position.copy(intersects[0].point)
-
-
-  
-
-  //  intersects[0].object.position.set(x, y, z) 
-
-
-
-
-
-}
-
-
-var theta = 9.4
-var radius = 600;
-
-function loop() {
-    updateOimoPhysics();
-    raycaster.setFromCamera(mouse, camera);
-  
-    // theta += 0.1;
-
-    camera.position.x = radius * Math.sin(THREE.Math.degToRad(theta));
-    camera.position.y = radius * Math.sin(THREE.Math.degToRad(theta));
-    camera.position.z = radius * Math.cos(THREE.Math.degToRad(theta));
-    camera.lookAt(scene.position);
-    renderer.render( scene, camera );
-    requestAnimationFrame( loop );
-}
-
-function onWindowResize() {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize( window.innerWidth, window.innerHeight );
-}
-
-function addFloor(size, position) {
-  const buffgeoBox = new THREE.BufferGeometry();
-  buffgeoBox.fromGeometry(new THREE.BoxGeometry(1, 1, 1));
-  var mesh = new THREE.Mesh( buffgeoBox, matGround );
-  mesh.scale.set( size[0], size[1], size[2] );
-  mesh.position.set( position[0], position[1], position[2] );
-  // mesh.rotation.set( rotation[0]*ToRad, rotation[1]*ToRad, rotation[2]*ToRad );
-  scene.add( mesh );
-  // grounds.push(mesh);
-  // mesh.castShadow = true;
-  mesh.receiveShadow = true;
-}
-
-function initChairGeometry() {
-  types = [ 'box', 'box', 'box', 'box', 'box', 'box', 'box', 'box' ];
-  sizes = [ 30,5,30,  4,30,4,  4,30,4,  4,30,4,  4,30,4,  4,30,4,  4,30,4,  23,10,3 ];
-  positions = [ 0,0,0,  12,-16,12,  -12,-16,12,  12,-16,-12,  -12,-16,-12,  12,16,-12,  -12,16,-12,  0,25,-12 ];
-  var g = new THREE.Geometry();
-  var n, m;
-  for (var i = 0; i < types.length; i++) {
-    n = i * 3
-    m = new THREE.Matrix4().makeTranslation( positions[n+0], positions[n+1], positions[n+2] )
-    m.scale(new THREE.Vector3(sizes[n + 0], sizes[n + 1], sizes[n + 2]))
-    
-    if ( i === 1 || i === 2 || i === 3 || i === 4 || i === 5 || i === 6 ) {
-      g.merge(geoCyl, m)
-    } else {
-      g.merge(geoBox, m)
-    }
-  }
-
-  chairGeometry = new THREE.BufferGeometry()
-  chairGeometry.fromGeometry(g)
-}
-
-//----------------------------------
-//  OIMO PHYSICS
-//----------------------------------
-function initOimoPhysics() {
-  world = new OIMO.World({
-    info: false,
-    worldscale: 100,
-    // timestep: 1 / 60,
-    // iterations: 3,
-    broadphase: 1, // 1 brute force, 2 sweep and prune, 3 volume tree
-    random: true,  // randomize sample
-    // info: false,   // calculate statistic or not
-    gravity: [0, -9.8, 0] 
   })
 
+  // loadG({
+  //   name: 'op1',
+  //   gltf: bunny,
+  //   // bin: op1Bin,
+  //   quantity: 1,
+  //   offsets: {
+  //     x: -0.75,
+  //     y: -0.3,
+  //     z: 0,
+  //   },
 
-  dotPhysics = world.add({
-    world,
-    type: 'sphere',
-    name: 'dot',
-    // pos: [0, 0, 0], // start position in degree
-    // rot: [0, 0, 0], // start rotation in degree
-    // move: true,
-    noSleep: true,
-    kinematic: true,
-    size: [5, 32, 32],
-    // config: [0.2, 0.4, 0.1],
-  });
-
-
-  initChairGeometry();
-  populate();
-}
-
-function populate() {
-  var pos = []
-  world.clear()
+  //   position: {
+  //     x: Math.random() * 2,
+  //     y: Math.random() * 60,
+  //     z: Math.random() * 2,
+  //   }
+  // })
   
-  const floorSize = [300, 10, 300]
-  const floorPos = [0, 0, 0]
-  
-  // the floor physics
-  world.add({
-    world,
-    size: floorSize,
-    pos: floorPos,
+  loadModel({
+    name: 'guitar',
+    mtl: TelecasterMtl,
+    obj: TelecasterObj,
+    quantity: 1,
+    offsets: {
+      x: -0.2,
+      y: -4.8,
+      z: 0.1,
+    },
+    position: {
+      x: Math.random() * 2,
+      y: Math.random() * 60,
+      z: Math.random() * 2,
+    }
   })
   
-  // the floor appearance
-  addFloor(floorSize, floorPos);
 
-  var i = max;
-  while (i--) {
-    pos[0] = 0;
-    pos[1] = 100 + (i * 160);
-    pos[2] = 0;
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setClearColor(scene.fog.color);
 
-    bodies[i] = world.add({
-      world,
-      pos,
-      type: types,
-      size: sizes,
-      posShape: positions,
-      move: true, 
-      noSleep: true, 
-      name: 'box' + i, 
-      config: [0.2, 0.4, 0.1]
-    })
 
-    var j = Math.round(Math.random()*1);
+  // renderer.gammaInput = true;
 
-    if (j === 1) {
-      meshes[i] = new THREE.Mesh(chairGeometry, matBox);
-    } else {
-      meshes[i] = new THREE.Mesh(chairGeometry, matSphere);
-    }
+  renderer.shadowMap.enabled = true;
+  renderer.gammaOutput = true;
+  renderer.gammaFactor = 2.2;
+
+
+  window.addEventListener('resize', onWindowResize, false)
+
+  window.addEventListener('mousemove', onMouseMove, false)
+  window.addEventListener('mousedown', onMouseDown, false)
+  window.addEventListener('mouseup', onMouseUp, false)
+
+  const controls = new OrbitControls(camera, renderer.domElement);
+  controls.enabled = false;
+  controls.maxDistance = 1500;
+  controls.minDistance = 0;
+
+}
+
+
+function animate() {
+  //controls.update();
+  updatePhysics();
+  render();
+  requestAnimationFrame(animate);
+  cannonDebugRenderer.update();
+}
+
+
+function updatePhysics() {
+  world.step(timeStep)
+  for (var i = 0; i < meshes.length; i++) {
+    meshes[i].position.copy(bodies[i].position)
+    meshes[i].quaternion.copy(bodies[i].quaternion)
+  }
+}
+
+let theta = 30
+const radius = 20
+
+const updateDragPosition = function() {
+   
+  if (mouseConstraint) {
+    const ray = getCameraRay(new THREE.Vector2(lastPos.x, lastPos.y));
+
+    const dragPos = gplane.intersectLine(
+      new THREE.Line3(ray.origin, ray.origin
+        .clone()
+        .add(ray.direction
+          .clone()
+          .multiplyScalar(10000))));
+    console.log(dragPos)
+    setClickMarker(dragPos.x, dragPos.y, dragPos.z)
+    moveJointToPoint(dragPos.x, dragPos.y, dragPos.z)
+  }
+}
+
+function render() {
+  theta += 0.04
+
+  updateDragPosition() // could be expensive
+
+  
+  camera.position.x = radius * Math.sin(THREE.Math.degToRad(theta))
+  camera.position.y = THREE.Math.degToRad(360)
+  camera.position.z = radius * Math.cos(THREE.Math.degToRad(theta))
+  camera.lookAt(scene.position)
+  // gplane.quaternion.copy(camera.quaternion); // keep the gplane facing us
+  renderer.render(scene, camera)
+  
+}
+
+
+function initCannon() {
+  // Setup our world
+  world.quatNormalizeSkip = 0;
+  world.quatNormalizeFast = false;
+  // world.solver.iterations = 2
+  // console.log(world.defaultContactMaterial)
+  world.defaultContactMaterial.contactEquationRelaxation = 3; // lower = ground is lava
+  world.defaultContactMaterial.contactEquationStiffness = 1e8;
+  world.defaultContactMaterial.restitution = 0.5
+  // world.defaultContactMaterial.friction = 1
+  
+  
+  // world.defaultContactMaterial.contactEquationRegularizationTime = 3;
+
+
+  world.gravity.set(0, -30, 0);
+  world.broadphase = new CANNON.NaiveBroadphase();
+
+  // Create boxes
+  const boxShape = new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.5));
+  for (var i = 0; i < cubeCount; i++) {
+    const boxBody = new CANNON.Body({ mass: 50 });
+    boxBody.name = `cube-${i}`
+    // console.log(boxBody)
+    boxBody.angularDamping = 0.99
+    // boxBody.linearDamping = 0.5
+
     
-    meshes[i].castShadow = true;
-    meshes[i].receiveShadow = true;
-    scene.add(meshes[i]);
+    boxBody.addShape(boxShape);
+    boxBody.position.set(Math.random() * 4, Math.random() * 2, Math.random() * 4);
+    world.add(boxBody);
+    bodies.push(boxBody);
   }
+
+
+  addJointBody()
+
+  cannonDebugRenderer = new CannonDebugRenderer(scene, world)
+
 }
 
-function updateOimoPhysics() {
-  if (world === null) return;
-  // update world
-  world.step();
 
-  var x,
-      y,
-      z,
-      mesh, 
-      body,
-      i = bodies.length;
-    
-  while (i--) {
-  
-    body = bodies[i];
-    mesh = meshes[i];
-    if (!body.sleeping) {
-      
-      // apply physics mouvement
-      mesh.position.copy(body.getPosition())
-      mesh.quaternion.copy(body.getQuaternion())
-      // change material
-      if (mesh.material.name === 'sbox') mesh.material = matBox;
-      if (mesh.material.name === 'ssph') mesh.material = matSphere; 
-
-      // MAYBE
-
-      // paddel.rotation.y += 90 * ToRad;
-
-      // bodies[0].setQuaternion(dotPhysics.quaternion);
-      
-
-      // bodys[bodys.length - 1].setPosition(paddel.position);
-
-      if (intersects.length) {
-
-        // bodies[0].setPosition(dotPhysics.position);
-        
-
-        // const force = intersects[0].object.position.clone().negate().normalize().multiplyScalar(0.1)
-  
-        if (bodies[0].type === 1) {
-          // console.log(bodies[0])
-          // var center = new THREE.Vector3(x, y, z);
-          // bodies[0].applyImpulse(center, force)
-          // bodies[0].setPosition(x,y,z);
-  
-          // bodies[0].setQuaternion(center, 1)
-  
-        }
-      }
-
-
-      // if (1) {
-      //   console.log(body)
-        
-      // }
-      
-      // reset position
-      if (mesh.position.y < -100) {
-        x = -100 + Math.random() * 200
-        z = -100 + Math.random() * 200
-        y = 100 + Math.random() * 1000
-        body.resetPosition(x, y, z);
-      }
-    } else {
-      // if (mesh.material.name === 'box') mesh.material = matBoxSleep;
-      // if (mesh.material.name === 'sph') mesh.material = matSphereSleep;
-    }
-  }
-  // infos.innerHTML = world.getInfo();
-    
-}
-//----------------------------------
-//  TEXTURES
-//----------------------------------
-function gradTexture(color) {
-  var c = document.createElement("canvas");
-  var ct = c.getContext("2d");
-  c.width = 16; c.height = 256;
-  var gradient = ct.createLinearGradient(0,0,0,256);
-  var i = color[0].length;
-  while(i--) { gradient.addColorStop(color[0][i],color[1][i]); }
-  ct.fillStyle = gradient;
-  ct.fillRect(0,0,16,256);
-  var texture = new THREE.Texture(c);
-  texture.needsUpdate = true;
-  return texture;
-}
-
-function basicTexture(n) {
-  var canvas = document.createElement( 'canvas' );
-  canvas.width = canvas.height = 64;
-  var ctx = canvas.getContext( '2d' );
-  var colors = [];
-  if (n===0) { // sphere
-      colors[0] = "#99999A";
-      colors[1] = "#cccccD";
-  }
-  if (n===1) { // sphere sleep
-      colors[0] = "#666667";
-      colors[1] = "#99999A";
-  }
-  if (n===2) { // box
-      colors[0] = "#AA8058";
-      colors[1] = "#FFAA58";
-  }
-  if (n===3) { // box sleep
-      colors[0] = "#383838";
-      colors[1] = "#AA8038";
-  }
-  var grd = null
-  grd = ctx.createLinearGradient(0, 0, 0, 64);
-  grd.addColorStop(0, colors[1]);
-  grd.addColorStop(1, colors[0]);
-
-  ctx.fillStyle = grd;
-  ctx.fillRect(0, 0, 64, 64);
-  var tx = new THREE.Texture(canvas);
-  tx.needsUpdate = true;
-  return tx;
-}
+init()
+initCannon()
+animate()
+initClickMarker()
