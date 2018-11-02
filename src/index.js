@@ -29,7 +29,7 @@ import { getCameraRay } from './utils/getCameraRay'
 
 import './index.css'
 import { addCube } from './utils/addCube';
-import { addBall } from './utils/addBall';
+import { addSphere } from './utils/addSphere';
 
 
 let cannonDebugRenderer
@@ -170,10 +170,15 @@ const init = function () {
     name: 'cube',
     quantity: 5
   })
-  addBall({
-    name: 'ball',
-    quantity: 1
-  })
+
+  setInterval(() => {
+    addSphere({
+      name: 'sphere',
+      quantity: 1,
+      radius: Math.random(),
+      color: '#' + Math.floor(Math.random() * 16777215).toString(16)
+    })
+  }, 200)
   
 
   renderer.setSize(window.innerWidth, window.innerHeight);

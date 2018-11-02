@@ -5,23 +5,24 @@ import { meshes, scene, world, bodies } from '../index'
 
 let objCount = 0
 
-export const addCube = ({
+export const addSphere = ({
   // defaults
   // http://schteppe.github.io/cannon.js/docs/classes/Body.html
-  name = 'cube',
+  name = 'sphere',
   quantity = 1,
-  dimensions = { x: 1, y: 1, z: 1 },
+  // dimensions = { r: 0.4, w: 25, h: 25 },
   position,
-  mass = 50,
+  radius = 0.4,
+  mass = 3,
   // damping, 0 is light, 1 is heavy
-  angularDamping = 0.99,
+  angularDamping = 0.95, // default is 0.01 which just looks silly cos it spins for ages
   linearDamping = 0.01, // linear damping smooths out jitter
-  color = 0xbad455,
+  color = 0x33ddee,
 }) => {
-  const { x, y, z } = dimensions
-  const geo = new THREE.BoxGeometry(x, y, z)
+  // const { r, w, h } = dimensions
+  const geo = new THREE.SphereGeometry(radius, 25, 25)
   const mat = new THREE.MeshPhongMaterial({ color })
-  const shape = new CANNON.Box(new CANNON.Vec3(x/2, y/2, z/2))
+  const shape = new CANNON.Sphere(radius)
   
   for (let i = 0; i < quantity; i++) {
     // THREE
