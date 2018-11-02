@@ -10,8 +10,8 @@ import keyboardObj from './models/model.obj'
 import guitarMtl from './materials/guitar.mtl'
 import guitarObj from './models/guitar.obj'
 
-import op1Gltf from './models/op1d.gltf'
-import bunny from './models/bunny.drc'
+// import op1Gltf from './models/op1d.gltf'
+// import bunny from './models/bunny.drc'
 // import op1Bin from './models/op1.bin'
 
 import TelecasterMtl from './models/Telecaster.mtl'
@@ -21,13 +21,15 @@ import { addJointBody, mouseConstraint, moveJointToPoint } from './utils/handleJ
 import { onMouseMove, onMouseDown, onMouseUp, lastPos  } from './utils/handleInputs'
 import { onWindowResize } from './utils/handleResize'
 import { loadModel } from './utils/loadModel'
-import { loadG } from './utils/loadG'
+// import { loadG } from './utils/loadG'
 import { addGround } from './add/addGround'
 import { setClickMarker, initClickMarker } from './utils/handleClickMarker'
 
 import { getCameraRay } from './utils/getCameraRay'
 
 import './index.css'
+import { addCube } from './utils/addCube';
+import { addBall } from './utils/addBall';
 
 
 let cannonDebugRenderer
@@ -77,7 +79,6 @@ export const meshes = [] // threejs
 export const bodies = [] // cannon
 
 
-
 const init = function () {
   // camera
   camera.position.set(20, 60, 20);
@@ -112,18 +113,6 @@ const init = function () {
   // scene.add(gplane)
 
   addGround()
-
-  // cubes
-  const cubeGeo = new THREE.BoxGeometry(1, 1, 1, 10, 10);
-  const cubeMaterial = new THREE.MeshPhongMaterial({ color: 0xbad455 });
-
-  for (let i = 0; i < cubeCount; i++) {
-    const cubeMesh = new THREE.Mesh(cubeGeo, cubeMaterial)
-    cubeMesh.castShadow = true
-    cubeMesh.name = `cube-${i}`
-    meshes.push(cubeMesh)
-    scene.add(cubeMesh)
-  }
 
   loadModel({
     name: 'keyboard',
@@ -175,6 +164,15 @@ const init = function () {
       y: Math.random() * 60,
       z: Math.random() * 2,
     }
+  })
+
+  addCube({
+    name: 'cube',
+    quantity: 5
+  })
+  addBall({
+    name: 'ball',
+    quantity: 1
   })
   
 
@@ -233,8 +231,8 @@ const updateDragPosition = function() {
         .clone()
         .add(ray.direction
           .clone()
-          .multiplyScalar(10000))));
-    console.log(dragPos)
+          .multiplyScalar(10000))))
+
     setClickMarker(dragPos.x, dragPos.y, dragPos.z)
     moveJointToPoint(dragPos.x, dragPos.y, dragPos.z)
   }
@@ -274,21 +272,7 @@ function initCannon() {
   world.gravity.set(0, -30, 0);
   world.broadphase = new CANNON.NaiveBroadphase();
 
-  // Create boxes
-  const boxShape = new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.5));
-  for (var i = 0; i < cubeCount; i++) {
-    const boxBody = new CANNON.Body({ mass: 50 });
-    boxBody.name = `cube-${i}`
-    // console.log(boxBody)
-    boxBody.angularDamping = 0.99
-    // boxBody.linearDamping = 0.5
-
-    
-    boxBody.addShape(boxShape);
-    boxBody.position.set(Math.random() * 4, Math.random() * 2, Math.random() * 4);
-    world.add(boxBody);
-    bodies.push(boxBody);
-  }
+  
 
 
   addJointBody()
