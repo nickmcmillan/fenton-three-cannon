@@ -28,6 +28,7 @@ export const addSphere = ({
     // THREE
     const mesh = new THREE.Mesh(geo, mat)
     mesh.castShadow = true
+    mesh.receiveShadow = true
     mesh.name = `${name}-${objCount}`
     meshes.push(mesh)
     scene.add(mesh)
