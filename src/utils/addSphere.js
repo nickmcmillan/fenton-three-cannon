@@ -10,7 +10,6 @@ export const addSphere = ({
   // http://schteppe.github.io/cannon.js/docs/classes/Body.html
   name = 'sphere',
   quantity = 1,
-  // dimensions = { r: 0.4, w: 25, h: 25 },
   position,
   radius = 0.4,
   mass = 3,
@@ -21,7 +20,7 @@ export const addSphere = ({
 }) => {
   // const { r, w, h } = dimensions
   const geo = new THREE.SphereGeometry(radius, 25, 25)
-  const mat = new THREE.MeshPhongMaterial({ color })
+  const mat = new THREE.MeshPhongMaterial({ color, transparent: true, opacity: 0.8, })
   const shape = new CANNON.Sphere(radius)
   
   for (let i = 0; i < quantity; i++) {
@@ -35,7 +34,7 @@ export const addSphere = ({
     // CANNON
     const body = new CANNON.Body({ mass, angularDamping, linearDamping, shape })
     body.name = `${name}-${objCount}`
-    body.position.set(Math.random() * 10, Math.random() * 20, Math.random() * 10)
+    body.position.set(Math.random() * 20, Math.random() * 20, Math.random() * 20)
     world.add(body)
     bodies.push(body)
     objCount += 1

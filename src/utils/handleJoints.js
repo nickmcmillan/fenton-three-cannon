@@ -50,6 +50,6 @@ export const removeJointConstraint = function () {
   mouseConstraint = false
 }
 
-export const addJointBody = function() {
-  world.add(jointBody)
-}
+// export const addJointBody = function() {
+//   world.add(jointBody)
+// }

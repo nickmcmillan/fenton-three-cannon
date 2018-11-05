@@ -17,16 +17,18 @@ export const addCube = ({
   angularDamping = 0.99,
   linearDamping = 0.01, // linear damping smooths out jitter
   color = 0xbad455,
+  material = 'MeshLambertMaterial'
 }) => {
   const { x, y, z } = dimensions
   const geo = new THREE.BoxGeometry(x, y, z)
-  const mat = new THREE.MeshPhongMaterial({ color })
+  const mat = new THREE[material]({ color })
   const shape = new CANNON.Box(new CANNON.Vec3(x/2, y/2, z/2))
   
   for (let i = 0; i < quantity; i++) {
     // THREE
     const mesh = new THREE.Mesh(geo, mat)
     mesh.castShadow = true
+    mesh.receiveShadow = true
     mesh.name = `${name}-${objCount}`
     meshes.push(mesh)
     scene.add(mesh)
