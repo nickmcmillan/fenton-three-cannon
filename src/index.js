@@ -6,29 +6,19 @@ import * as CANNON from 'cannon'
 import { CannonDebugRenderer } from './cannonDebugRenderer'
 // import { threeToCannon } from 'three-to-cannon';
 
-import keyboardMtl from './materials/model.mtl'
-import keyboardObj from './models/model.obj'
-
-import guitarMtl from './materials/guitar.mtl'
-import guitarObj from './models/guitar.obj'
-
 import hihat from './models/hihat.glb'
 import snare from './models/snare.glb'
 import kick from './models/kick.glb'
-import fullkit from './models/fullkit.glb'
+// import fullkit from './models/fullkit.glb'
 import jupiter from './models/jupiter.glb'
 import op1 from './models/op2.glb'
 import mustang from './models/mustang.glb'
 // import bunny from './models/bunny.drc'
-// import op1Bin from './models/op1.bin'
-
-import TelecasterMtl from './models/Telecaster.mtl'
-import TelecasterObj from './models/Telecaster.obj'
 
 import { mouseConstraint, moveJointToPoint } from './utils/handleJoints'
 import { onMouseMove, onMouseDown, onMouseUp, lastPos  } from './utils/handleInputs'
 import { onWindowResize } from './utils/handleResize'
-import { loadModel } from './utils/loadModel'
+// import { loadModel } from './utils/loadModel'
 import { loadG } from './utils/loadG'
 import { addGround } from './add/addGround'
 import { setClickMarker, initClickMarker } from './utils/handleClickMarker'
@@ -369,7 +359,6 @@ const init = function () {
   // renderer.gammaInput = true;
 
   renderer.shadowMap.enabled = true;
-  renderer.shadowMap.renderReverseSided = false;
 
   
   renderer.gammaOutput = true;
