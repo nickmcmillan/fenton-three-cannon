@@ -5,7 +5,9 @@ import { scene, world } from '../index'
 
 export const addGround = function () {
   // THREE
-  const geo = new THREE.PlaneGeometry(10, 10)
+  // https://stackoverflow.com/a/52726872/2255980
+  const groundSegments = 100 // resolution of the ground. higher = better shadow quality
+  const geo = new THREE.PlaneGeometry(10, 10, groundSegments, groundSegments)
   const mat = new THREE.MeshLambertMaterial({ color: 'blue' })
   const mesh = new THREE.Mesh(geo, mat)
   mesh.quaternion.setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI / 2)
