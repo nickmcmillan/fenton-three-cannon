@@ -7867,9 +7867,15 @@ text-table@0.2.0, text-table@^0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/text-table/-/text-table-0.2.0.tgz#7f5ee823ae805207c00af2df4a84ec3fcfa570b4"
 
-three-gltf-loader@^1.97.0:
-  version "1.97.0"
-  resolved "https://registry.yarnpkg.com/three-gltf-loader/-/three-gltf-loader-1.97.0.tgz#5bfb17b5e5817276b65855a86286f98c51efb415"
+three-effectcomposer-es6@^0.0.4:
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/three-effectcomposer-es6/-/three-effectcomposer-es6-0.0.4.tgz#da3471bac92c721845790e964e52835d5cbd8cf2"
+  integrity sha1-2jRxuskschhFeQ6WTlKDXVy9jPI=
+
+three-gltf-loader@1.98.0:
+  version "1.98.0"
+  resolved "https://registry.yarnpkg.com/three-gltf-loader/-/three-gltf-loader-1.98.0.tgz#ed575a910ca5864bf44a64b84f8ec08d741e9399"
+  integrity sha512-EDkIHescmJ8Zk0P1p+auFBp0nYXyyNx5rGcqEpvcKRoT7upkw/i645bD0WjOV8/StYFYpRXyzetfQBvdbBjdcg==
 
 three-mtl-loader@^1.0.2:
   version "1.0.2"
