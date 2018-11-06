@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import EffectComposer, { RenderPass, ShaderPass, CopyShader } from 'three-effectcomposer-es6'
+import EffectComposer, { RenderPass, ShaderPass } from 'three-effectcomposer-es6'
 
 import * as CANNON from 'cannon'
 // import OrbitControls from 'orbit-controls-es6';
@@ -25,7 +25,7 @@ import { setClickMarker, initClickMarker } from './utils/handleClickMarker'
 
 import { getCameraRay } from './utils/getCameraRay'
 
-import { addCube } from './utils/addCube';
+// import { addCube } from './utils/addCube';
 import { addSphere } from './utils/addSphere';
 
 import './index.css'
@@ -147,22 +147,19 @@ export const world = new CANNON.World()
 const timeStep = 1 / 60;
 
 
-// FOV – We’re using 45 degrees for our field of view.
-// Apsect – We’re simply dividing the browser width and height to get an aspect ratio.
-// Near – This is the distance at which the camera will start rendering scene objects.
-// Far – Anything beyond this distance will not be rendered.Perhaps more commonly known as the draw distance.
 export const renderer = new THREE.WebGLRenderer({
   canvas: document.getElementById('canvas'),
   antialias: true,
 })
 
 
-
+// FOV – We’re using 45 degrees for our field of view.
+// Apsect – We’re simply dividing the browser width and height to get an aspect ratio.
+// Near – This is the distance at which the camera will start rendering scene objects.
+// Far – Anything beyond this distance will not be rendered. Perhaps more commonly known as the draw distance.
 export const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.5, 100);
 export const scene = new THREE.Scene()
 
-
-export const backVector = new THREE.Vector3(0, 0, -1);
 export const gplane = new THREE.Plane()
 
 gplane.name = 'gplane'
@@ -230,8 +227,8 @@ const init = function () {
 
   light.castShadow = true;
 
-  light.shadow.mapSize.width = 1024;
-  light.shadow.mapSize.height = 1024;
+  light.shadow.mapSize.width = 1024  // default is 512
+  light.shadow.mapSize.height = 1024  // default is 512
 
   light.shadow.camera.left = -d;
   light.shadow.camera.right = d;
@@ -342,16 +339,14 @@ const init = function () {
   //   quantity: 5
   // })
 
-  setInterval(() => {
-    addSphere({
-      name: 'sphere',
-      quantity: 1,
-      radius: Math.random(),
-      color: '#' + Math.floor(Math.random() * 16777215).toString(16)
-    })
-  }, 1000)
+  addSphere({
+    name: 'sphere',
+    quantity: 25,
+    // radius: Math.random(),
+    color: 'yellow',//'#' + Math.floor(Math.random() * 16777215).toString(16)
+  })
   
-
+  renderer.setPixelRatio(window.devicePixelRatio )
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setClearColor(0xffffff);
 
@@ -359,6 +354,8 @@ const init = function () {
   // renderer.gammaInput = true;
 
   renderer.shadowMap.enabled = true;
+   // options are THREE.BasicShadowMap | THREE.PCFShadowMap | THREE.PCFSoftShadowMap
+  renderer.shadowMapType = THREE.PCFSoftShadowMap;
 
   
   renderer.gammaOutput = true;
@@ -367,20 +364,17 @@ const init = function () {
 
   window.addEventListener('resize', onWindowResize, false)
 
-  window.addEventListener('mousemove', onMouseMove, false)
   window.addEventListener('mousedown', onMouseDown, false)
+  window.addEventListener('mousemove', onMouseMove, false)
   window.addEventListener('mouseup', onMouseUp, false)
+  window.addEventListener('touchstart', onMouseDown, false)
+  window.addEventListener('touchmove', onMouseMove, { passive: false })
+  window.addEventListener('touchend', onMouseUp, false)
 
   // const controls = new OrbitControls(camera, renderer.domElement);
   // controls.enabled = false;
   // controls.maxDistance = 1500;
   // controls.minDistance = 0;
-
-
-
-  
-
-
 
 
 }
@@ -391,7 +385,7 @@ function animate() {
   updatePhysics()
   render()
   requestAnimationFrame(animate)
-  cannonDebugRenderer.update()
+  // cannonDebugRenderer.update()
 }
 
 
