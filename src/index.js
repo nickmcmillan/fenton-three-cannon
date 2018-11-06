@@ -13,6 +13,8 @@ import kick from './models/kick.glb'
 import jupiter from './models/jupiter.glb'
 import op1 from './models/op2.glb'
 import mustang from './models/mustang.glb'
+// import amp from './models/amp.glb'
+import bass from './models/bass.glb'
 // import bunny from './models/bunny.drc'
 
 import { mouseConstraint, moveJointToPoint } from './utils/handleJoints'
@@ -289,6 +291,28 @@ const init = function () {
     }
   })
   
+  // loadG({
+  //   name: 'amp',
+  //   gltf: amp,
+  //   quantity: 1,
+  //   position: {
+  //     x: Math.random() * 2,
+  //     y: Math.random() * 30,
+  //     z: Math.random() * 2,
+  //   }
+  // })
+  
+  loadG({
+    name: 'bass',
+    gltf: bass,
+    quantity: 1,
+    position: {
+      x: Math.random() * 2,
+      y: Math.random() * 30,
+      z: Math.random() * 2,
+    }
+  })
+  
   loadG({
     name: 'hihat',
     gltf: hihat,
@@ -346,7 +370,7 @@ const init = function () {
     color: 'yellow',//'#' + Math.floor(Math.random() * 16777215).toString(16)
   })
   
-  renderer.setPixelRatio(window.devicePixelRatio )
+  // renderer.setPixelRatio(window.devicePixelRatio )
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setClearColor(0xffffff);
 
