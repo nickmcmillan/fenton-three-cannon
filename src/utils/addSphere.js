@@ -11,19 +11,20 @@ export const addSphere = ({
   name = 'sphere',
   quantity = 1,
   position,
-  radius = 0.4,
-  mass = 3,
+  radius,
+  mass = 1,
   // damping, 0 is light, 1 is heavy
   angularDamping = 0.95, // default is 0.01 which just looks silly cos it spins for ages
   linearDamping = 0.01, // linear damping smooths out jitter
   color = 0x33ddee,
 }) => {
-  // const { r, w, h } = dimensions
-  const geo = new THREE.SphereGeometry(radius, 25, 25)
-  const mat = new THREE.MeshPhongMaterial({ color, transparent: true, opacity: 0.8, })
-  const shape = new CANNON.Sphere(radius)
   
   for (let i = 0; i < quantity; i++) {
+    const localRadius = radius || Math.random()    
+    // const { r, w, h } = dimensions
+    const geo = new THREE.SphereGeometry(localRadius, 25, 25) // sphere resolution
+    const mat = new THREE.MeshPhongMaterial({ color, transparent: true, opacity: 0.9, })
+    const shape = new CANNON.Sphere(localRadius)
     // THREE
     const mesh = new THREE.Mesh(geo, mat)
     mesh.castShadow = true
@@ -34,7 +35,7 @@ export const addSphere = ({
     // CANNON
     const body = new CANNON.Body({ mass, angularDamping, linearDamping, shape })
     body.name = `${name}-${objCount}`
-    body.position.set(Math.random() * 20, Math.random() * 20, Math.random() * 20)
+    body.position.set(Math.random() * 40, Math.random() * 40, Math.random() * 40)
     world.add(body)
     bodies.push(body)
     objCount += 1
