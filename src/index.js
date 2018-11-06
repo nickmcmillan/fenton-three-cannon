@@ -421,7 +421,7 @@ function updatePhysics() {
     const outZ = bodies[i].position.z > 20 || bodies[i].position.z < -20
     // if so, reset their velocity & position
     if (outX || outZ) {
-      bodies[i].velocity.set(0, 0, 0)
+      bodies[i].velocity.set(Math.random(), Math.random(), Math.random())
       bodies[i].position.set(0, 20, 0)
     }
 

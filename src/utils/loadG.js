@@ -78,7 +78,7 @@ export const loadG = async ({ name, gltf, quantity, position }) => {
     body.name = name
 
     body.position.set(position.x, position.y, position.z)
-    
+    body.velocity.set(Math.random() * 20, Math.random() * 20, Math.random() * 20)
 
     world.add(body)
     bodies.push(body)

@@ -36,6 +36,7 @@ export const addSphere = ({
     const body = new CANNON.Body({ mass, angularDamping, linearDamping, shape })
     body.name = `${name}-${objCount}`
     body.position.set(Math.random() * 40, Math.random() * 40, Math.random() * 40)
+    body.velocity.set(Math.random() * 10, Math.random() * 10, Math.random() * 10)
     world.add(body)
     bodies.push(body)
     objCount += 1
