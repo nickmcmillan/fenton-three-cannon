@@ -415,30 +415,27 @@ const init = function () {
 
 function animate() {
   stats.begin()
-  //controls.update();
+  //controls.update()
   updatePhysics()
   render()
   cannonDebugRenderer.update()
   stats.end()
   requestAnimationFrame(animate)
-
 }
-
 
 function updatePhysics() {
   world.step(timeStep)
   for (var i = 0; i < meshes.length; i++) {
-    // check if bodies are too far from view,
-    const outX = bodies[i].position.x > 20 || bodies[i].position.x < -20
-    const outZ = bodies[i].position.z > 20 || bodies[i].position.z < -20
-    // if so, reset their velocity & position
-    if (outX || outZ) {
+    // check if the body falls below the ground
+    const outY = bodies[i].position.y < -10
+    // if so, reset its velocity & position
+    if (outY) {
       bodies[i].velocity.set(Math.random(), Math.random(), Math.random())
       bodies[i].position.set(0, 20, 0)
     }
-
+    // get the Three mesh, and apply the Cannon body to it
     meshes[i].position.copy(bodies[i].position)
-    meshes[i].quaternion.copy(bodies[i].quaternion)    
+    meshes[i].quaternion.copy(bodies[i].quaternion)
   }
 }
 
