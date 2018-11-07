@@ -45,8 +45,9 @@ export const onMouseDown = function (e) {
 
   dragPlane.setFromNormalAndCoplanarPoint(backVector.clone().applyQuaternion(camera.quaternion), pos)
 
-  const name = draggedItem.object.parent.name || draggedItem.object.name
+  const name = draggedItem.object.name
   const constrainedBody = bodies.find(x => x.name === name)
+
   // grouped objects are risky (dependent on layer names of the imported object)
   // return in case we hit an unhandled nested object
   if (!constrainedBody) return

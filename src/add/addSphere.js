@@ -41,6 +41,7 @@ export const addSphere = ({
     body.velocity.set(Math.random() * 10, Math.random() * 10, Math.random() * 10)
     world.add(body)
     bodies.push(body)
+
     objCount += 1
   }
 }

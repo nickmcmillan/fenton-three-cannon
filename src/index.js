@@ -155,11 +155,11 @@ const init = function () {
   loadG({
     name: 'pedal',
     gltf: pedal,
-    quantity: 50,
+    quantity: 10,
     position: {
-      x: Math.random() * 2,
+      x: Math.random() * 20,
       y: Math.random() * 30,
-      z: Math.random() * 2,
+      z: Math.random() * 20,
     }
   })
   
@@ -179,9 +179,9 @@ const init = function () {
     gltf: bass,
     quantity: 1,
     position: {
-      x: Math.random() * 2,
+      x: Math.random() * 15,
       y: Math.random() * 30,
-      z: Math.random() * 2,
+      z: Math.random() * 15,
     }
   })
   
@@ -190,9 +190,9 @@ const init = function () {
     gltf: hihat,
     quantity: 1,
     position: {
-      x: Math.random() * 2,
+      x: Math.random() * 15,
       y: Math.random() * 30,
-      z: Math.random() * 2,
+      z: Math.random() * 15,
     }
   })
   
@@ -201,9 +201,9 @@ const init = function () {
     gltf: snare,
     quantity: 1,
     position: {
-      x: Math.random() * 2,
+      x: Math.random() * 15,
       y: Math.random() * 30,
-      z: Math.random() * 2,
+      z: Math.random() * 15,
     }
   })
   
@@ -212,9 +212,9 @@ const init = function () {
     gltf: kick,
     quantity: 1,
     position: {
-      x: Math.random() * 2,
+      x: Math.random() * 15,
       y: Math.random() * 30,
-      z: Math.random() * 2,
+      z: Math.random() * 15,
     }
   })
   
@@ -223,9 +223,9 @@ const init = function () {
     gltf: jupiter,
     quantity: 1,
     position: {
-      x: Math.random() * 2,
+      x: Math.random() * 15,
       y: Math.random() * 30,
-      z: Math.random() * 2,
+      z: Math.random() * 15,
     }
   })
   
