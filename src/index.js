@@ -4,31 +4,29 @@ import * as CANNON from 'cannon'
 import Stats from 'stats-js'
 // import OrbitControls from 'orbit-controls-es6';
 import { CannonDebugRenderer } from './cannonDebugRenderer'
-// import { threeToCannon } from 'three-to-cannon';
 
+// Models
 import hihat from './models/hihat.glb'
 import snare from './models/snare.glb'
 import kick from './models/kick.glb'
-// import fullkit from './models/fullkit.glb'
 import jupiter from './models/jupiter.glb'
 import op1 from './models/op2.glb'
 import mustang from './models/mustang.glb'
 // import amp from './models/amp.glb'
 import bass from './models/bass.glb'
-// import bunny from './models/bunny.drc'
 
 import { mouseConstraint, moveJointToPoint } from './utils/handleJoints'
 import { onMouseMove, onMouseDown, onMouseUp, lastPos  } from './utils/handleInputs'
 import { onWindowResize } from './utils/handleResize'
 // import { loadModel } from './utils/loadModel'
-import { loadG } from './utils/loadG'
+import { loadG } from './add/loadG'
 import { addGround } from './add/addGround'
 import { setClickMarker, initClickMarker } from './utils/handleClickMarker'
 
-import { getCameraRay } from './utils/getCameraRay'
+import getCameraRay from './utils/getCameraRay'
 
 // import { addCube } from './utils/addCube';
-import { addSphere } from './utils/addSphere';
+import { addSphere } from './add/addSphere';
 
 import './index.css'
 
@@ -168,7 +166,7 @@ export const renderer = new THREE.WebGLRenderer({
 // Apsect – We’re simply dividing the browser width and height to get an aspect ratio.
 // Near – This is the distance at which the camera will start rendering scene objects.
 // Far – Anything beyond this distance will not be rendered. Perhaps more commonly known as the draw distance.
-export const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.5, 100);
+export const camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.5, 60);
 export const scene = new THREE.Scene()
 
 export const gplane = new THREE.Plane()
@@ -447,15 +445,15 @@ const updateDragPosition = function() {
   if (mouseConstraint) {
     const ray = getCameraRay(new THREE.Vector2(lastPos.x, lastPos.y));
 
-    const dragPos = gplane.intersectLine(
-      new THREE.Line3(ray.origin, ray.origin
-        .clone()
-        .add(ray.direction
-          .clone()
-          .multiplyScalar(10000))))
+    const pos = gplane.intersectLine(
+      new THREE.Line3(
+        ray.origin,
+        ray.origin.clone().add(ray.direction.clone().multiplyScalar(10000))
+      )
+    )
 
-    setClickMarker(dragPos.x, dragPos.y, dragPos.z)
-    moveJointToPoint(dragPos.x, dragPos.y, dragPos.z)
+    setClickMarker(pos.x, pos.y, pos.z)
+    moveJointToPoint(pos.x, pos.y, pos.z)
   }
 }
 
@@ -481,7 +479,6 @@ function initCannon() {
   world.quatNormalizeSkip = 0;
   world.quatNormalizeFast = false;
   // world.solver.iterations = 2
-  // console.log(world.defaultContactMaterial)
   world.defaultContactMaterial.contactEquationRelaxation = 3; // lower = ground is lava
   world.defaultContactMaterial.contactEquationStiffness = 1e8;
   world.defaultContactMaterial.restitution = 0.5
@@ -491,10 +488,8 @@ function initCannon() {
   world.gravity.set(0, -40, 0);
   world.broadphase = new CANNON.NaiveBroadphase();
 
-
   // addJointBody()
   cannonDebugRenderer = new CannonDebugRenderer(scene, world)
-
 }
 
 
