@@ -23,22 +23,22 @@ import updateDragPosition from './utils/updateDragPosition'
 // import { loadModel } from './utils/loadModel'
 import { loadG } from './add/loadG'
 import { addGround } from './add/addGround'
-import { initClickMarker } from './utils/handleClickMarker'
+// import { initClickMarker } from './utils/handleClickMarker'
 
 import stats from './helpers/stats'
 
-// import { addCube } from './utils/addCube';
-import { addSphere } from './add/addSphere';
+import { addCube } from './add/addCube'
+import { addSphere } from './add/addSphere'
 
 
-import './index.css'
+import './index.scss'
 
 
 let cannonDebugRenderer
 
 export const world = new CANNON.World()
 
-const timeStep = 1 / 60;
+const timeStep = 1 / 60
 
 
 export const renderer = new THREE.WebGLRenderer({
@@ -127,6 +127,7 @@ const init = function () {
   loadG({
     name: 'op1',
     gltf: op1,
+    mass: 1,
     quantity: 1,
     offsets: {
       x: -0.75,
@@ -145,6 +146,7 @@ const init = function () {
     name: 'mustang',
     gltf: mustang,
     quantity: 1,
+    mass: 5,
     position: {
       x: Math.random() * 2,
       y: Math.random() * 30,
@@ -155,6 +157,7 @@ const init = function () {
   loadG({
     name: 'pedal',
     gltf: pedal,
+    mass: 1,
     quantity: 10,
     position: {
       x: Math.random() * 20,
@@ -177,6 +180,7 @@ const init = function () {
   loadG({
     name: 'bass',
     gltf: bass,
+    mass: 8,
     quantity: 1,
     position: {
       x: Math.random() * 15,
@@ -210,6 +214,7 @@ const init = function () {
   loadG({
     name: 'kick',
     gltf: kick,
+    mass: 20,
     quantity: 1,
     position: {
       x: Math.random() * 15,
@@ -221,6 +226,7 @@ const init = function () {
   loadG({
     name: 'jupiter',
     gltf: jupiter,
+    mass: 5,
     quantity: 1,
     position: {
       x: Math.random() * 15,
@@ -230,10 +236,10 @@ const init = function () {
   })
   
 
-  // addCube({
-  //   name: 'cube',
-  //   quantity: 5
-  // })
+  addCube({
+    name: 'cube',
+    quantity: 3
+  })
 
   addSphere({
     name: 'sphere',
@@ -330,4 +336,4 @@ function initCannon() {
 init()
 initCannon()
 animate()
-initClickMarker()
+// initClickMarker()

@@ -1,0 +1,20 @@
+body {
+  margin: 0;
+  overflow: hidden;
+  padding: 0;
+  font-family: sans-serif;
+  position: fixed;
+}
+
+.cursor-grab {
+  cursor: move; /* fallback: no `url()` support or images disabled */
+  // cursor: -webkit-grab; /* Chrome 1-21, Safari 4+ */
+  // cursor:    -moz-grab; /* Firefox 1.5-26 */
+  cursor:         grab; /* W3C standards syntax, should come least */
+}
+
+.cursor-grabbing {
+  cursor: -webkit-grabbing;
+  cursor:    -moz-grabbing;
+  cursor:         grabbing;
+}
