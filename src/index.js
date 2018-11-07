@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import EffectComposer, { RenderPass, ShaderPass } from 'three-effectcomposer-es6'
-
 import * as CANNON from 'cannon'
+import Stats from 'stats-js'
 // import OrbitControls from 'orbit-controls-es6';
 import { CannonDebugRenderer } from './cannonDebugRenderer'
 // import { threeToCannon } from 'three-to-cannon';
@@ -31,6 +31,15 @@ import { getCameraRay } from './utils/getCameraRay'
 import { addSphere } from './utils/addSphere';
 
 import './index.css'
+
+
+const stats = new Stats()
+stats.setMode(0)
+stats.domElement.style.position = 'absolute'
+stats.domElement.style.left = '0px'
+stats.domElement.style.top = '0px'
+document.body.appendChild(stats.domElement)
+
 
 const VERTEX = `
     varying vec2 vUv;
@@ -405,11 +414,14 @@ const init = function () {
 
 
 function animate() {
+  stats.begin()
   //controls.update();
   updatePhysics()
   render()
+  cannonDebugRenderer.update()
+  stats.end()
   requestAnimationFrame(animate)
-  // cannonDebugRenderer.update()
+
 }
 
 
