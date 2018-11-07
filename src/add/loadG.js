@@ -42,12 +42,11 @@ export const loadG = async ({
   
 
   // loader.setResourcePath(bin)
-  const loader = new GLTFLoader()
-  const mtlPromiseLoader = promisifyLoader(loader)
-
   for (var i = 0; i < quantity; i++) {
-  
+    const loader = new GLTFLoader()
+    const mtlPromiseLoader = promisifyLoader(loader)
     const mesh = await mtlPromiseLoader.load(gltf).then(gltf => gltf.scene)
+    
 
     mesh.traverse(child => {
       if (child instanceof THREE.Mesh) {
@@ -67,21 +66,17 @@ export const loadG = async ({
     // apply dimensions to cannon
     const shape = new CANNON.Box(new CANNON.Vec3(x / 2, y / 2, z / 2))
 
-    
-
+  
     // let clonedObj = mesh
     // if (i !== 0) clonedObj = mesh.clone() // if its looping, start cloning
 
     // add to threejs
-    
-    // mesh.name = `${name}-${objCount}`
-    
+    mesh.name = `${name}-${objCount}`
     meshes.push(mesh)
     scene.add(mesh)
 
     // add to cannon
-    const body = new CANNON.Body({ mass, shape, angularDamping })
-    
+    const body = new CANNON.Body({ mass, shape, angularDamping, linearDamping })
     body.name = `${name}-${objCount}`
     body.position.set(position.x, position.y, position.z)
     body.velocity.set(Math.random() * 20, Math.random() * 20, Math.random() * 20)
