@@ -3,6 +3,7 @@ import { camera, meshes, bodies, gplane, } from '../index'
 import { addMouseConstraint, moveJointToPoint, removeJointConstraint, mouseConstraint } from './handleJoints'
 import { setClickMarker, removeClickMarker } from './handleClickMarker'
 import getCameraRay from './getCameraRay'
+import updateDragPosition from './updateDragPosition'
 
 const backVector = new THREE.Vector3(0, 0, -1)
 const raycaster = new THREE.Raycaster()
@@ -60,25 +61,10 @@ export const onMouseMove = function (e) {
   const clientX = e.touches ? e.touches[0].clientX : e.clientX
   const clientY = e.touches ? e.touches[0].clientY : e.clientY
   
-  if (mouseConstraint) {
+  lastPos.x = clientX
+  lastPos.y = clientY
 
-    lastPos.x = clientX
-    lastPos.y = clientY
-
-    const ray = getCameraRay(new THREE.Vector2(lastPos.x, lastPos.y))
-    
-    const pos = gplane.intersectLine(
-      new THREE.Line3(
-        ray.origin, 
-        ray.origin.clone().add(ray.direction.clone().multiplyScalar(10000))
-      )
-    )
-
-    // if (pos) {
-      setClickMarker(pos.x, pos.y, pos.z)
-      moveJointToPoint(pos.x, pos.y, pos.z)
-    // }
-  }
+  updateDragPosition()
 }
 
 export const onMouseUp = function (e) {

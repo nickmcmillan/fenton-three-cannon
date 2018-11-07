@@ -18,6 +18,7 @@ import bass from './models/bass.glb'
 import { mouseConstraint, moveJointToPoint } from './utils/handleJoints'
 import { onMouseMove, onMouseDown, onMouseUp, lastPos  } from './utils/handleInputs'
 import { onWindowResize } from './utils/handleResize'
+import updateDragPosition from './utils/updateDragPosition'
 // import { loadModel } from './utils/loadModel'
 import { loadG } from './add/loadG'
 import { addGround } from './add/addGround'
@@ -252,27 +253,9 @@ const init = function () {
 
   addGround()
 
-  // loadModel({
-  //   name: 'keyboard',
-  //   mtl: keyboardMtl,
-  //   obj: keyboardObj,
-  //   quantity: 1,
-  //   offsets: {
-  //     x: -0.75,
-  //     y: -0.3,
-  //     z: 0,
-  //   },
-  //   position: {
-  //     x: Math.random() * 2,
-  //     y: Math.random() * 60,
-  //     z: Math.random() * 2,
-  //   }
-  // })
-
   loadG({
     name: 'op1',
     gltf: op1,
-    // bin: op1Bin,
     quantity: 1,
     offsets: {
       x: -0.75,
@@ -385,7 +368,7 @@ const init = function () {
   // renderer.gammaInput = true;
 
   renderer.shadowMap.enabled = true;
-   // options are THREE.BasicShadowMap | THREE.PCFShadowMap | THREE.PCFSoftShadowMap
+   // shadowMapType options are THREE.BasicShadowMap | THREE.PCFShadowMap | THREE.PCFSoftShadowMap
   renderer.shadowMapType = THREE.PCFSoftShadowMap;
 
   
@@ -440,22 +423,7 @@ function updatePhysics() {
 let theta = 6
 const radius = 20
 
-const updateDragPosition = function() {
-   
-  if (mouseConstraint) {
-    const ray = getCameraRay(new THREE.Vector2(lastPos.x, lastPos.y));
 
-    const pos = gplane.intersectLine(
-      new THREE.Line3(
-        ray.origin,
-        ray.origin.clone().add(ray.direction.clone().multiplyScalar(10000))
-      )
-    )
-
-    setClickMarker(pos.x, pos.y, pos.z)
-    moveJointToPoint(pos.x, pos.y, pos.z)
-  }
-}
 
 function render() {
   theta += 0.05
