@@ -1,7 +1,8 @@
 import * as THREE from 'three'
-import EffectComposer, { RenderPass, ShaderPass } from 'three-effectcomposer-es6'
+// import EffectComposer, { RenderPass, ShaderPass } from 'three-effectcomposer-es6'
+// import { SMAAEffect, EffectComposer, EffectPass, RenderPass } from 'postprocessing'
 import * as CANNON from 'cannon'
-import Stats from 'stats-js'
+
 // import OrbitControls from 'orbit-controls-es6';
 import { CannonDebugRenderer } from './cannonDebugRenderer'
 
@@ -15,139 +16,21 @@ import mustang from './models/mustang.glb'
 // import amp from './models/amp.glb'
 import bass from './models/bass.glb'
 
-import { mouseConstraint, moveJointToPoint } from './utils/handleJoints'
-import { onMouseMove, onMouseDown, onMouseUp, lastPos  } from './utils/handleInputs'
+import { onMouseMove, onMouseDown, onMouseUp  } from './utils/handleInputs'
 import { onWindowResize } from './utils/handleResize'
 import updateDragPosition from './utils/updateDragPosition'
 // import { loadModel } from './utils/loadModel'
 import { loadG } from './add/loadG'
 import { addGround } from './add/addGround'
-import { setClickMarker, initClickMarker } from './utils/handleClickMarker'
+import { initClickMarker } from './utils/handleClickMarker'
 
-import getCameraRay from './utils/getCameraRay'
+import stats from './helpers/stats'
 
 // import { addCube } from './utils/addCube';
 import { addSphere } from './add/addSphere';
 
+
 import './index.css'
-
-
-const stats = new Stats()
-stats.setMode(0)
-stats.domElement.style.position = 'absolute'
-stats.domElement.style.left = '0px'
-stats.domElement.style.top = '0px'
-document.body.appendChild(stats.domElement)
-
-
-const VERTEX = `
-    varying vec2 vUv;
-
-    void main() {
-        vec4 mvPosition = modelViewMatrix * vec4(position, 1.);
-        gl_Position = projectionMatrix * mvPosition;
-        vUv = uv;
-    }
-`;
-
-const FRAGMENT = `
-    uniform sampler2D tDiffuse;
-    uniform sampler2D tShadow;
-    uniform vec2 iResolution;
-
-    varying vec2 vUv;
-
-
-
-    #define Sensitivity (vec2(0.3, 1.5) * iResolution.y / 400.0)
-
-    float checkSame(vec4 center, vec4 samplef)
-    {
-        vec2 centerNormal = center.xy;
-        float centerDepth = center.z;
-        vec2 sampleNormal = samplef.xy;
-        float sampleDepth = samplef.z;
-
-        vec2 diffNormal = abs(centerNormal - sampleNormal) * Sensitivity.x;
-        bool isSameNormal = (diffNormal.x + diffNormal.y) < 0.1;
-        float diffDepth = abs(centerDepth - sampleDepth) * Sensitivity.y;
-        bool isSameDepth = diffDepth < 0.1;
-
-        return (isSameNormal && isSameDepth) ? 1.0 : 0.0;
-    }
-
-    void main( )
-    {
-        vec4 sample0 = texture2D(tDiffuse, vUv);
-        vec4 sample1 = texture2D(tDiffuse, vUv + (vec2(1.0, 1.0) / iResolution.xy));
-        vec4 sample2 = texture2D(tDiffuse, vUv + (vec2(-1.0, -1.0) / iResolution.xy));
-        vec4 sample3 = texture2D(tDiffuse, vUv + (vec2(-1.0, 1.0) / iResolution.xy));
-        vec4 sample4 = texture2D(tDiffuse, vUv + (vec2(1.0, -1.0) / iResolution.xy));
-
-        float edge = checkSame(sample1, sample2) * checkSame(sample3, sample4);
-
-        // gl_FragColor = vec4(edge, sample0.w, 1.0, 1.0);
-        float shadow = texture2D(tShadow, vUv).x;
-        gl_FragColor = vec4(edge, shadow, 1.0, 1.0);
-
-    }
-`;
-
-const FRAGMENT_FINAL = `
-  uniform sampler2D tDiffuse;
-  uniform sampler2D tNoise;
-  uniform float iTime;
-
-  varying vec2 vUv;
-
-  #define EdgeColor vec4(0.2, 0.2, 0.15, 1.0)
-  #define BackgroundColor vec4(1.0,1.0,1.0,1)
-  #define NoiseAmount 0.01
-  #define ErrorPeriod 30.0
-  #define ErrorRange 0.003
-
-  // Reference: https://www.shadertoy.com/view/MsSGD1
-  float triangle(float x)
-  {
-      return abs(1.0 - mod(abs(x), 2.0)) * 2.0 - 1.0;
-  }
-
-  float rand(float x)
-  {
-      return fract(sin(x) * 43758.5453);
-  }
-
-  void main()
-  {
-      float time = floor(iTime * 16.0) / 16.0;
-      vec2 uv = vUv;
-      // uv += vec2(triangle(uv.y * rand(time) * 1.0) * rand(time * 1.9) * 0.005,
-      //         triangle(uv.x * rand(time * 3.4) * 1.0) * rand(time * 2.1) * 0.005);
-
-      float noise = (texture2D(tNoise, uv * 0.5).r - 0.5) * NoiseAmount;
-      vec2 uvs[3];
-      uvs[0] = uv + vec2(ErrorRange * sin(ErrorPeriod * uv.y + 0.0) + noise, ErrorRange * sin(ErrorPeriod * uv.x + 0.0) + noise);
-      uvs[1] = uv + vec2(ErrorRange * sin(ErrorPeriod * uv.y + 1.047) + noise, ErrorRange * sin(ErrorPeriod * uv.x + 3.142) + noise);
-      uvs[2] = uv + vec2(ErrorRange * sin(ErrorPeriod * uv.y + 2.094) + noise, ErrorRange * sin(ErrorPeriod * uv.x + 1.571) + noise);
-
-      float edge = texture2D(tDiffuse, uvs[0]).r * texture2D(tDiffuse, uvs[1]).r * texture2D(tDiffuse, uvs[2]).r;
-      float diffuse = texture2D(tDiffuse, uv).g;
-
-      float w = fwidth(diffuse) * 2.0;
-      vec4 mCol = mix(BackgroundColor * 1., BackgroundColor, mix(1.0, 1.0, smoothstep(-w, w, diffuse - 0.1)));
-      gl_FragColor = mix(EdgeColor, mCol, edge);
-  }
-`;
-
-
-const PARAMETERS = {
-  minFilter: THREE.LinearFilter,
-  magFilter: THREE.LinearFilter,
-  format: THREE.RGBFormat,
-  stencilBuffer: false
-};
-
-
 
 
 let cannonDebugRenderer
@@ -163,6 +46,23 @@ export const renderer = new THREE.WebGLRenderer({
 })
 
 
+// renderer.setPixelRatio(window.devicePixelRatio )
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setClearColor(0xffffff);
+
+
+// renderer.gammaInput = true;
+
+renderer.shadowMap.enabled = true;
+// shadowMapType options are THREE.BasicShadowMap | THREE.PCFShadowMap | THREE.PCFSoftShadowMap
+renderer.shadowMapType = THREE.PCFSoftShadowMap;
+
+
+renderer.gammaOutput = true;
+renderer.gammaFactor = 2.2;
+
+
+
 // FOV – We’re using 45 degrees for our field of view.
 // Apsect – We’re simply dividing the browser width and height to get an aspect ratio.
 // Near – This is the distance at which the camera will start rendering scene objects.
@@ -170,51 +70,23 @@ export const renderer = new THREE.WebGLRenderer({
 export const camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.5, 60);
 export const scene = new THREE.Scene()
 
-export const gplane = new THREE.Plane()
+export const dragPlane = new THREE.Plane()
+dragPlane.name = 'dragPlane'
 
-gplane.name = 'gplane'
+// These are kept in sync
+export const meshes = [] // Three
+export const bodies = [] // Cannon
 
-export const cubeCount = 1;
-export const keyboardCount = 1
+// const clock = new THREE.Clock();
 
-// To be synced
-export const meshes = [] // threejs
-export const bodies = [] // cannon
+// const composer = new EffectComposer(renderer);
 
+// const effectPass = new EffectPass(camera, new SMAAEffect());
+// effectPass.renderToScreen = true;
 
-const shadowBuffer = new THREE.WebGLRenderTarget(1, 1, PARAMETERS);
+// composer.addPass(new RenderPass(scene, camera))
+// composer.addPass(effectPass);
 
-const resolution = new THREE.Vector2(window.innerWidth, window.innerHeight)
-
-const drawShader = {
-  uniforms: {
-    tDiffuse: { type: 't', value: null },
-    tShadow: { type: 't', value: null },
-    iResolution: { type: 'v2', value: resolution },
-  },
-  vertexShader: VERTEX,
-  fragmentShader: FRAGMENT,
-};
-
-const composer = new EffectComposer(renderer);
-composer.addPass(new RenderPass(scene, camera));
-const pass = new ShaderPass(drawShader)
-composer.addPass(pass);
-
-const finalShader = {
-  uniforms: {
-    tDiffuse: { type: 't', value: null },
-    iTime: { type: 'f', value: 0.0 },
-    tNoise: { type: 't', value: new THREE.TextureLoader().load('noise.png') }
-  },
-  vertexShader: VERTEX,
-  fragmentShader: FRAGMENT_FINAL
-};
-
-const passFinal = new ShaderPass(finalShader);
-passFinal.renderToScreen = true;
-passFinal.material.extensions.derivatives = true;
-composer.addPass(passFinal)
 
 
 const init = function () {
@@ -248,8 +120,6 @@ const init = function () {
   light.shadow.camera.far = 3 * d;
 
   scene.add(light)
-
-  // scene.add(gplane)
 
   addGround()
 
@@ -360,21 +230,6 @@ const init = function () {
     color: 'yellow',//'#' + Math.floor(Math.random() * 16777215).toString(16)
   })
   
-  // renderer.setPixelRatio(window.devicePixelRatio )
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setClearColor(0xffffff);
-
-
-  // renderer.gammaInput = true;
-
-  renderer.shadowMap.enabled = true;
-   // shadowMapType options are THREE.BasicShadowMap | THREE.PCFShadowMap | THREE.PCFSoftShadowMap
-  renderer.shadowMapType = THREE.PCFSoftShadowMap;
-
-  
-  renderer.gammaOutput = true;
-  renderer.gammaFactor = 2.2;
-
 
   window.addEventListener('resize', onWindowResize, false)
 
@@ -399,7 +254,7 @@ function animate() {
   //controls.update()
   updatePhysics()
   render()
-  cannonDebugRenderer.update()
+  // cannonDebugRenderer.update()
   stats.end()
   requestAnimationFrame(animate)
 }
@@ -430,14 +285,13 @@ function render() {
 
   updateDragPosition() // could be expensive
 
-  
   camera.position.x = radius * Math.sin(THREE.Math.degToRad(theta))
   camera.position.y = THREE.Math.degToRad(360)
   camera.position.z = radius * Math.cos(THREE.Math.degToRad(theta))
   camera.lookAt(scene.position)
   renderer.render(scene, camera);
-  pass.uniforms.tShadow.value = shadowBuffer.texture;
-  // composer.render();
+
+  // composer.render(clock.getDelta());
   
 }
 

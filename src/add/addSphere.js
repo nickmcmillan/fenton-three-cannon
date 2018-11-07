@@ -23,7 +23,7 @@ export const addSphere = ({
     const localRadius = radius || Math.random()    
     // const { r, w, h } = dimensions
     const geo = new THREE.SphereGeometry(localRadius, 25, 25) // sphere resolution
-    const mat = new THREE.MeshPhongMaterial({ color, transparent: true, opacity: 0.9, })
+    const mat = new THREE.MeshPhongMaterial({ color, /*transparent: false, opacity: 1,*/ })
     const shape = new CANNON.Sphere(localRadius)
     // THREE
     const mesh = new THREE.Mesh(geo, mat)

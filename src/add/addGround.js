@@ -20,10 +20,9 @@ export const addGround = function () {
   const outerMat = new THREE.MeshLambertMaterial({ color: 'white' })
   const outerMesh = new THREE.Mesh(outerGeo, outerMat)
   outerMesh.quaternion.setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI / 2)
-  outerMesh.position.y = -0.1
+  outerMesh.position.y = -0.01
   outerMesh.receiveShadow = true
   scene.add(outerMesh)
-
 
   // CANNON
   // Create a plane

@@ -1,8 +1,7 @@
 import * as THREE from 'three'
-import { camera, meshes, bodies, gplane, } from '../index'
-import { addMouseConstraint, moveJointToPoint, removeJointConstraint, mouseConstraint } from './handleJoints'
+import { camera, meshes, bodies, dragPlane, } from '../index'
+import { addMouseConstraint, removeJointConstraint } from './handleJoints'
 import { setClickMarker, removeClickMarker } from './handleClickMarker'
-import getCameraRay from './getCameraRay'
 import updateDragPosition from './updateDragPosition'
 
 const backVector = new THREE.Vector3(0, 0, -1)
@@ -44,14 +43,13 @@ export const onMouseDown = function (e) {
   // Set marker on contact point
   setClickMarker(pos.x, pos.y, pos.z)
 
-  gplane.setFromNormalAndCoplanarPoint(backVector.clone().applyQuaternion(camera.quaternion), pos)
+  dragPlane.setFromNormalAndCoplanarPoint(backVector.clone().applyQuaternion(camera.quaternion), pos)
 
-  // grouped objects are risky. 
-  console.log(draggedItem)
-  
   const name = draggedItem.object.parent.name || draggedItem.object.name
   const constrainedBody = bodies.find(x => x.name === name)
-  if (!constrainedBody) return // in case we hit an unhandle nested object
+  // grouped objects are risky (dependent on layer names of the imported object)
+  // return in case we hit an unhandled nested object
+  if (!constrainedBody) return
 
   addMouseConstraint(pos.x, pos.y, pos.z, constrainedBody)
 }
