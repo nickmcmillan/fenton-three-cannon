@@ -2,8 +2,8 @@ import * as THREE from 'three'
 import { scene } from '../index'
 
 
-const shape = new THREE.SphereGeometry(0.2, 8, 8)
-const markerMaterial = new THREE.MeshLambertMaterial({ color: 0x00ccdd })
+const shape = new THREE.SphereGeometry(0.2, 16, 16)
+const markerMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff })
 const clickMarker = new THREE.Mesh(shape, markerMaterial)
 clickMarker.visible = false
 

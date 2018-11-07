@@ -3,8 +3,6 @@ import * as CANNON from 'cannon'
 
 import { meshes, scene, world, bodies } from '../index'
 
-let objCount = 0
-
 export const addSphere = ({
   // defaults
   // http://schteppe.github.io/cannon.js/docs/classes/Body.html
@@ -18,6 +16,8 @@ export const addSphere = ({
   linearDamping = 0.01, // linear damping smooths out jitter
   color = 0x33ddee,
 }) => {
+
+  let objCount = 0
   
   for (let i = 0; i < quantity; i++) {
     const localRadius = radius || Math.random()    
@@ -25,6 +25,7 @@ export const addSphere = ({
     const geo = new THREE.SphereGeometry(localRadius, 25, 25) // sphere resolution
     const mat = new THREE.MeshPhongMaterial({ color, /*transparent: false, opacity: 1,*/ })
     const shape = new CANNON.Sphere(localRadius)
+    
     // THREE
     const mesh = new THREE.Mesh(geo, mat)
     mesh.castShadow = true
@@ -32,6 +33,7 @@ export const addSphere = ({
     mesh.name = `${name}-${objCount}`
     meshes.push(mesh)
     scene.add(mesh)
+    
     // CANNON
     const body = new CANNON.Body({ mass, angularDamping, linearDamping, shape })
     body.name = `${name}-${objCount}`

@@ -13,6 +13,7 @@ import kick from './models/kick.glb'
 import jupiter from './models/jupiter.glb'
 import op1 from './models/op2.glb'
 import mustang from './models/mustang.glb'
+import pedal from './models/pedal.glb'
 // import amp from './models/amp.glb'
 import bass from './models/bass.glb'
 
@@ -67,7 +68,7 @@ renderer.gammaFactor = 2.2;
 // Apsect – We’re simply dividing the browser width and height to get an aspect ratio.
 // Near – This is the distance at which the camera will start rendering scene objects.
 // Far – Anything beyond this distance will not be rendered. Perhaps more commonly known as the draw distance.
-export const camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.5, 60);
+export const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.5, 60);
 export const scene = new THREE.Scene()
 
 export const dragPlane = new THREE.Plane()
@@ -144,6 +145,17 @@ const init = function () {
     name: 'mustang',
     gltf: mustang,
     quantity: 1,
+    position: {
+      x: Math.random() * 2,
+      y: Math.random() * 30,
+      z: Math.random() * 2,
+    }
+  })
+  
+  loadG({
+    name: 'pedal',
+    gltf: pedal,
+    quantity: 50,
     position: {
       x: Math.random() * 2,
       y: Math.random() * 30,
@@ -286,7 +298,7 @@ function render() {
   updateDragPosition() // could be expensive
 
   camera.position.x = radius * Math.sin(THREE.Math.degToRad(theta))
-  camera.position.y = THREE.Math.degToRad(360)
+  camera.position.y = THREE.Math.degToRad(360 * 2.5)
   camera.position.z = radius * Math.cos(THREE.Math.degToRad(theta))
   camera.lookAt(scene.position)
   renderer.render(scene, camera);
