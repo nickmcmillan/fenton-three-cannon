@@ -1,11 +1,6 @@
 import * as THREE from 'three'
 
-// Adders
 import { addGround } from './add/addGround'
-
-
-
-
 import { onMouseMove, onMouseDown, onMouseUp } from './utils/handleInputs'
 import { onWindowResize } from './utils/handleResize'
 
@@ -49,33 +44,23 @@ export default function () {
   // scene
   // scene.fog = new THREE.Fog(0xccffff, 30, 100)
 
-  // lights
-  scene.add(new THREE.AmbientLight(0x666666));
-
-
-  const light = new THREE.DirectionalLight(0xffffff, 1.25);
+  // Lights
   const d = 20
-
+  const light = new THREE.DirectionalLight(0xffffff, 1.25);
   light.position.set(d, d, d)
-
   light.castShadow = true;
-
   light.shadow.mapSize.width = 1024  // default is 512
   light.shadow.mapSize.height = 1024  // default is 512
-
   light.shadow.camera.left = -d;
   light.shadow.camera.right = d;
   light.shadow.camera.top = d;
   light.shadow.camera.bottom = -d;
-
   light.shadow.camera.far = 3 * d;
 
   scene.add(light)
+  scene.add(new THREE.AmbientLight(0x777777));
 
   addGround()
-
-  
-
 
   // TODO: debounce
   window.addEventListener('resize', onWindowResize, false)

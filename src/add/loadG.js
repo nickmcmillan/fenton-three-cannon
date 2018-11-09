@@ -49,13 +49,13 @@ export const loadG = async ({
     const loader = new GLTFLoader()
     const mtlPromiseLoader = promisifyLoader(loader)
     const mesh = await mtlPromiseLoader.load(gltf).then(gltf => gltf.scene)
-    
+    const nameTmp = `${name}-${objCount}`
 
     mesh.traverse(child => {
       if (child instanceof THREE.Mesh) {
         child.castShadow = true
         child.receiveShadow = true
-        child.name = `${name}-${objCount}`
+        child.name = nameTmp
       }
     })
     
@@ -74,13 +74,13 @@ export const loadG = async ({
     // if (i !== 0) clonedObj = mesh.clone() // if its looping, start cloning
 
     // add to threejs
-    mesh.name = `${name}-${objCount}`
+    mesh.name = nameTmp
     meshes.push(mesh)
     scene.add(mesh)
 
     // add to cannon
     const body = new CANNON.Body({ mass, shape, angularDamping, linearDamping })
-    body.name = `${name}-${objCount}`
+    body.name = nameTmp
     body.position.set(position.x, position.y, position.z)
     body.velocity.set(Math.random() * 20, Math.random() * 20, Math.random() * 20)
     world.add(body)

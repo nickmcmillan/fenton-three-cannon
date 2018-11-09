@@ -21,7 +21,7 @@ export const addSphere = ({
   let objCount = 0
   
   for (let i = 0; i < quantity; i++) {
-    const name = `${name}-${objCount}`
+    const nameTmp = `${name}-${objCount}`
     const localRadius = radius || Math.random()    
     // const { r, w, h } = dimensions
     const geo = new THREE.SphereGeometry(localRadius, 25, 25) // sphere resolution
@@ -32,13 +32,13 @@ export const addSphere = ({
     const mesh = new THREE.Mesh(geo, mat)
     mesh.castShadow = true
     mesh.receiveShadow = true
-    mesh.name = name
+    mesh.name = nameTmp
     meshes.push(mesh)
     scene.add(mesh)
     
     // CANNON
     const body = new CANNON.Body({ mass, angularDamping, linearDamping, shape })
-    body.name = name
+    body.name = nameTmp
     body.position.set(Math.random() * 40, Math.random() * 40, Math.random() * 40)
     body.velocity.set(Math.random() * 10, Math.random() * 10, Math.random() * 10)
     world.add(body)
