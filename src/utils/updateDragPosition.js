@@ -5,7 +5,7 @@ import { lastPos } from './handleInputs'
 import { mouseConstraint, moveJointToPoint } from './handleJoints'
 import { dragPlane } from '../index'
 
-const tempVec3 = new THREE.Vector3()
+const vec3 = new THREE.Vector3()
 
 export default function() {
    
@@ -20,7 +20,7 @@ export default function() {
       // THREE now requires a target
       // https://github.com/mrdoob/three.js/issues/12231
       // We create it once (above) outside this function
-      tempVec3
+      vec3
     )
 
     // setClickMarker(pos.x, pos.y, pos.z)

@@ -12,6 +12,8 @@ import { promisifyLoader } from '../utils/promisifyLoader'
 
 THREE.Cache.enabled = true
 
+const vec3 = new THREE.Vector3()
+
 export const loadG = async ({
   name,
   gltf,
@@ -61,7 +63,7 @@ export const loadG = async ({
 
     // get dimensions from three  
     const tempBox = new THREE.Box3().setFromObject(mesh)
-    const { x, y, z } = tempBox.getSize()
+    const { x, y, z } = tempBox.getSize(vec3)
 
     // apply dimensions to cannon
     const shape = new CANNON.Box(new CANNON.Vec3(x / 2, y / 2, z / 2))
