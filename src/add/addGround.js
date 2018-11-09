@@ -1,12 +1,13 @@
 import * as THREE from 'three'
 import * as CANNON from 'cannon'
 
-import { scene } from '../index'
+import { scene } from '../three'
 import { world } from '../cannon'
 
 export const addGround = function () {
-  const groundSize = 10
+  const groundSize = 10 // this element is just for show
   const bounds = 50 // if an object exceeds these bounds, it drops off the edge
+  
   // THREE
   // https://stackoverflow.com/a/52726872/2255980
   const innerGeo = new THREE.PlaneGeometry(groundSize, groundSize)

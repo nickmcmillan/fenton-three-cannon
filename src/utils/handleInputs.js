@@ -1,5 +1,6 @@
 import * as THREE from 'three'
-import { camera, meshes, bodies, dragPlane, } from '../index'
+import { camera, meshes, dragPlane, } from '../three'
+import { bodies } from '../cannon'
 import { addMouseConstraint, removeJointConstraint } from './handleJoints'
 // import { setClickMarker, removeClickMarker } from './handleClickMarker'
 import updateDragPosition from './updateDragPosition'

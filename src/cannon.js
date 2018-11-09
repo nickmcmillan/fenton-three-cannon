@@ -1,10 +1,27 @@
 import * as CANNON from 'cannon'
 import { CannonDebugRenderer } from './helpers/cannonDebugRenderer'
-import { scene } from './index'
+import { meshes, scene } from './three'
 
 export const world = new CANNON.World()
-
+export const bodies = []
 export let cannonDebugRenderer
+
+const timeStep = 1 / 60
+export const updatePhysics = function () {
+  world.step(timeStep)
+  for (var i = 0; i < meshes.length; i++) {
+    // check if the body falls below the ground
+    // if so, reset its velocity & position
+    const outY = bodies[i].position.y < -10
+    if (outY) {
+      bodies[i].velocity.set(Math.random(), Math.random(), Math.random())
+      bodies[i].position.set(0, 20, 0)
+    }
+    // get the Three mesh, and apply the Cannon body to it
+    meshes[i].position.copy(bodies[i].position)
+    meshes[i].quaternion.copy(bodies[i].quaternion)
+  }
+}
 
 export default function () {
   // Setup our world
@@ -20,8 +37,6 @@ export default function () {
   world.gravity.set(0, -40, 0);
   world.broadphase = new CANNON.NaiveBroadphase();
 
-  // addJointBody()
-
   cannonDebugRenderer = new CannonDebugRenderer(scene, world)
-  
+  // addJointBody()
 }

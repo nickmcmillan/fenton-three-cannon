@@ -3,7 +3,7 @@ import getCameraRay from './getCameraRay'
 // import { setClickMarker } from './handleClickMarker'
 import { lastPos } from './handleInputs'
 import { mouseConstraint, moveJointToPoint } from './handleJoints'
-import { dragPlane } from '../index'
+import { dragPlane } from '../three'
 
 const vec3 = new THREE.Vector3()
 

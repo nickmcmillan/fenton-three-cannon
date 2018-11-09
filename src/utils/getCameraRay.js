@@ -4,7 +4,7 @@
 // http://toxicfork.github.io/react-three-renderer-example/#/webgl_physics_mousepick
 
 import * as THREE from 'three'
-import { camera } from '../index'
+import { camera } from '../three'
 
 const raycaster = new THREE.Raycaster()
 const tempVector2 = new THREE.Vector2()
