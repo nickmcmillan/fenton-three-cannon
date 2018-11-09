@@ -1,7 +1,8 @@
 import * as THREE from 'three'
 import * as CANNON from 'cannon'
 
-import { scene, world } from '../index'
+import { scene } from '../index'
+import { world } from '../cannon'
 
 export const addGround = function () {
   const groundSize = 10

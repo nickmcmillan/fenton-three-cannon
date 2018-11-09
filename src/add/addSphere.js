@@ -1,7 +1,8 @@
 import * as THREE from 'three'
 import * as CANNON from 'cannon'
 
-import { meshes, scene, world, bodies } from '../index'
+import { meshes, scene, bodies } from '../index'
+import { world } from '../cannon'
 
 export const addSphere = ({
   // defaults

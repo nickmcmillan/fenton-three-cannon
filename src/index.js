@@ -1,10 +1,6 @@
 import * as THREE from 'three'
 // import EffectComposer, { RenderPass, ShaderPass } from 'three-effectcomposer-es6'
 // import { SMAAEffect, EffectComposer, EffectPass, RenderPass } from 'postprocessing'
-import * as CANNON from 'cannon'
-
-// import OrbitControls from 'orbit-controls-es6';
-import { CannonDebugRenderer } from './cannonDebugRenderer'
 
 // Models
 import hihat from './models/hihat.glb'
@@ -23,20 +19,17 @@ import updateDragPosition from './utils/updateDragPosition'
 // import { loadModel } from './utils/loadModel'
 import { loadG } from './add/loadG'
 import { addGround } from './add/addGround'
-// import { initClickMarker } from './utils/handleClickMarker'
 
 import stats from './helpers/stats'
 
 import { addCube } from './add/addCube'
 import { addSphere } from './add/addSphere'
 
+import initCannon, { world, cannonDebugRenderer } from './cannon'
+
 
 import './index.scss'
 
-
-let cannonDebugRenderer
-
-export const world = new CANNON.World()
 
 const timeStep = 1 / 60
 
@@ -257,24 +250,16 @@ const init = function () {
   window.addEventListener('touchstart', onMouseDown, false)
   window.addEventListener('touchmove', onMouseMove, { passive: false })
   window.addEventListener('touchend', onMouseUp, false)
-
-  // const controls = new OrbitControls(camera, renderer.domElement);
-  // controls.enabled = false;
-  // controls.maxDistance = 1500;
-  // controls.minDistance = 0;
-
-
 }
 
 
-function animate() {
+function loop() {
   stats.begin()
-  //controls.update()
   updatePhysics()
   render()
-  // cannonDebugRenderer.update()
+  cannonDebugRenderer.update()
   stats.end()
-  requestAnimationFrame(animate)
+  requestAnimationFrame(loop)
 }
 
 function updatePhysics() {
@@ -314,26 +299,10 @@ function render() {
 }
 
 
-function initCannon() {
-  // Setup our world
-  world.quatNormalizeSkip = 0;
-  world.quatNormalizeFast = false;
-  // world.solver.iterations = 2
-  world.defaultContactMaterial.contactEquationRelaxation = 3; // lower = ground is lava
-  world.defaultContactMaterial.contactEquationStiffness = 1e8;
-  world.defaultContactMaterial.restitution = 0.5
-  world.defaultContactMaterial.friction = 0.1  
-  // world.defaultContactMaterial.contactEquationRegularizationTime = 3;
 
-  world.gravity.set(0, -40, 0);
-  world.broadphase = new CANNON.NaiveBroadphase();
-
-  // addJointBody()
-  cannonDebugRenderer = new CannonDebugRenderer(scene, world)
-}
 
 
 init()
 initCannon()
-animate()
+loop()
 // initClickMarker()

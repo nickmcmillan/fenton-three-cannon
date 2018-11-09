@@ -3,7 +3,8 @@ import * as CANNON from 'cannon'
 import GLTFLoader from 'three-gltf-loader';
 // import DracoDecoderModule from 'aadraco-decoder';
 // import DRACOLoader from 'draco3dgltf';
-import { meshes, scene, world, bodies } from '../index'
+import { meshes, scene, bodies } from '../index'
+import { world } from '../cannon'
 import { promisifyLoader } from '../utils/promisifyLoader'
 // import { threeToCannon } from 'three-to-cannon';
 // import DRACOLoader from 'aadraco-decoder'

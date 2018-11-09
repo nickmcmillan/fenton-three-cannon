@@ -1,5 +1,5 @@
 import * as CANNON from 'cannon'
-import { world } from '../index'
+import { world } from '../cannon'
 
 const jointBody = new CANNON.Body({ 
   mass: 0,
