@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 
 import { addGround } from './add/addGround'
-import { onMouseMove, onMouseDown, onMouseUp } from './utils/handleInputs'
+import { handleMove, handleDown, handleUp } from './utils/handleInputs'
 import { onWindowResize } from './utils/handleResize'
 
 export const renderer = new THREE.WebGLRenderer({
@@ -65,11 +65,11 @@ export default function () {
   // TODO: debounce
   window.addEventListener('resize', onWindowResize, false)
 
-  window.addEventListener('mousedown', onMouseDown, false)
-  window.addEventListener('mousemove', onMouseMove, false)
-  window.addEventListener('mouseup', onMouseUp, false)
-  window.addEventListener('touchstart', onMouseDown, false)
-  window.addEventListener('touchmove', onMouseMove, { passive: false })
-  window.addEventListener('touchend', onMouseUp, false)
+  window.addEventListener('mousedown', handleDown, false)
+  window.addEventListener('mousemove', handleMove, false)
+  window.addEventListener('mouseup', handleUp, false)
+  window.addEventListener('touchstart', handleDown, false)
+  window.addEventListener('touchmove', handleMove, { passive: false })
+  window.addEventListener('touchend', handleUp, false)
 
 }

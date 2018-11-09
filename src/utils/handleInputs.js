@@ -2,7 +2,6 @@ import * as THREE from 'three'
 import { camera, meshes, dragPlane, } from '../three'
 import { bodies } from '../cannon'
 import { addMouseConstraint, removeJointConstraint } from './handleJoints'
-// import { setClickMarker, removeClickMarker } from './handleClickMarker'
 import updateDragPosition from './updateDragPosition'
 
 const backVector = new THREE.Vector3(0, 0, -1)
@@ -36,10 +35,9 @@ const checkIntersects = function (e) {
   return raycaster.intersectObjects(meshes, true) 
 }
 
-export const onMouseDown = function (e) {
+export const handleDown = function (e) {
 
   const intersects = checkIntersects(e)
-
   if (!intersects.length) return
   docBody.classList.add('cursor-grabbing')
   
@@ -47,9 +45,6 @@ export const onMouseDown = function (e) {
   const pos = draggedItem.point
 
   if (!pos) return
-
-  // Set marker on contact point
-  // setClickMarker(pos.x, pos.y, pos.z)
 
   dragPlane.setFromNormalAndCoplanarPoint(backVector.clone().applyQuaternion(camera.quaternion), pos)
 
@@ -63,8 +58,21 @@ export const onMouseDown = function (e) {
   addMouseConstraint(pos.x, pos.y, pos.z, constrainedBody)
 }
 
-export const onMouseMove = function (e) {
+// chrome on iOS has 'pull to refresh'. this stops that.
+// https://gist.github.com/JoostKiens/d26db0882a2b304ae2adc7b437e9f30a
+let lastY = 0
+const blockTouchScroll = function (e) {
+  const { pageY } = e.changedTouches[0]
+  const scrollY = 0
+  if (pageY > lastY && scrollY === 0) {
+    e.preventDefault()
+  }
+  lastY = pageY
+}
 
+export const handleMove = function (e) {
+  if (e.changedTouches) blockTouchScroll(e)
+  
   const intersects = checkIntersects(e)
   if (intersects.length) {
     docBody.classList.add('cursor-grab')
@@ -75,7 +83,7 @@ export const onMouseMove = function (e) {
   updateDragPosition()
 }
 
-export const onMouseUp = function (e) {
+export const handleUp = function (e) {
   
   if (!draggedItem) return
   docBody.classList.remove('cursor-grabbing')
@@ -83,7 +91,5 @@ export const onMouseUp = function (e) {
   // Send the remove mouse joint to server
   removeJointConstraint()
   
-  // remove the marker
   draggedItem = null
-  // removeClickMarker()
 }
