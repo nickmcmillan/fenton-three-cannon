@@ -14,7 +14,7 @@ import jupiter from './models/jupiter.glb'
 import op1 from './models/op2.glb'
 import mustang from './models/mustang.glb'
 import pedal from './models/pedal.glb'
-// import amp from './models/amp.glb'
+import amp from './models/amp.glb'
 import bass from './models/bass.glb'
 
 import { onMouseMove, onMouseDown, onMouseUp  } from './utils/handleInputs'
@@ -166,16 +166,16 @@ const init = function () {
     }
   })
   
-  // loadG({
-  //   name: 'amp',
-  //   gltf: amp,
-  //   quantity: 1,
-  //   position: {
-  //     x: Math.random() * 2,
-  //     y: Math.random() * 30,
-  //     z: Math.random() * 2,
-  //   }
-  // })
+  loadG({
+    name: 'amp',
+    gltf: amp,
+    quantity: 1,
+    position: {
+      x: Math.random() * 2,
+      y: Math.random() * 30,
+      z: Math.random() * 2,
+    }
+  })
   
   loadG({
     name: 'bass',
@@ -272,7 +272,7 @@ function animate() {
   //controls.update()
   updatePhysics()
   render()
-  // cannonDebugRenderer.update()
+  cannonDebugRenderer.update()
   stats.end()
   requestAnimationFrame(animate)
 }
