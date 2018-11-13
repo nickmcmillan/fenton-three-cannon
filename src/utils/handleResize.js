@@ -1,4 +1,4 @@
-import { camera, renderer } from '../index'
+import { camera, renderer } from '../three'
 
 export const onWindowResize = function () {
   camera.aspect = window.innerWidth / window.innerHeight

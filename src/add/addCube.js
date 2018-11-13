@@ -1,7 +1,8 @@
 import * as THREE from 'three'
 import * as CANNON from 'cannon'
 
-import { meshes, scene, world, bodies } from '../index'
+import { meshes, scene } from '../three'
+import { world, bodies } from '../cannon'
 
 let objCount = 0
 

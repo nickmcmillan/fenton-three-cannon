@@ -1,15 +1,16 @@
 import * as THREE from 'three'
 import * as CANNON from 'cannon'
 
-import { scene, world } from '../index'
+import { scene } from '../three'
+import { world } from '../cannon'
 
 export const addGround = function () {
-  const groundSize = 10
-  const groundSegments = 100 // resolution of the ground. higher = better shadow quality
-  const bounds = 50 // if an ob
+  const groundSize = 10 // this element is just for show
+  const bounds = 50 // if an object exceeds these bounds, it drops off the edge
+  
   // THREE
   // https://stackoverflow.com/a/52726872/2255980
-  const innerGeo = new THREE.PlaneGeometry(groundSize, groundSize, groundSegments, groundSegments)
+  const innerGeo = new THREE.PlaneGeometry(groundSize, groundSize)
   const innerMat = new THREE.MeshLambertMaterial({ color: 'blue' })
   const innerMesh = new THREE.Mesh(innerGeo, innerMat)
   innerMesh.quaternion.setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI / 2)
