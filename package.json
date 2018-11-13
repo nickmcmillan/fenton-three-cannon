@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "cannon": "^0.6.2",
+    "delay": "^4.1.0",
     "node-sass": "^4.10.0",
     "orbit-controls-es6": "^2.0.0",
     "postprocessing": "^5.1.1",

@@ -9,7 +9,7 @@ export const renderer = new THREE.WebGLRenderer({
   antialias: true,
 })
 
-// renderer.setPixelRatio(window.devicePixelRatio)
+// renderer.setPixelRatio(window.devicePixelRatio * 0.5)
 renderer.setSize(window.innerWidth, window.innerHeight)
 renderer.setClearColor(0xffffff)
 // renderer.gammaInput = true

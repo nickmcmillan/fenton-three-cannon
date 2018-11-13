@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import * as CANNON from 'cannon'
-
+import randomInRange from '../utils/randomInRange'
 import { meshes, scene } from '../three'
 import { world, bodies } from '../cannon'
 
@@ -18,32 +18,33 @@ export const addSphere = ({
   color = 0x33ddee,
 }) => {
 
-  let objCount = 0
-  
   for (let i = 0; i < quantity; i++) {
-    const nameTmp = `${name}-${objCount}`
-    const localRadius = radius || Math.random()    
+    const localRadius = randomInRange(0.5, 0.75)
+
     // const { r, w, h } = dimensions
     const geo = new THREE.SphereGeometry(localRadius, 25, 25) // sphere resolution
     const mat = new THREE.MeshPhongMaterial({ color, /*transparent: false, opacity: 1,*/ })
     const shape = new CANNON.Sphere(localRadius)
-    
+
     // THREE
     const mesh = new THREE.Mesh(geo, mat)
+
     mesh.castShadow = true
     mesh.receiveShadow = true
-    mesh.name = nameTmp
+    mesh.name = mesh.uuid
     meshes.push(mesh)
     scene.add(mesh)
-    
+
     // CANNON
     const body = new CANNON.Body({ mass, angularDamping, linearDamping, shape })
-    body.name = nameTmp
-    body.position.set(Math.random() * 40, Math.random() * 40, Math.random() * 40)
-    body.velocity.set(Math.random() * 10, Math.random() * 10, Math.random() * 10)
+    body.name = mesh.uuid
+    body.position.set(randomInRange(-1, 1), randomInRange(60, 140), randomInRange(-1, 1))
+    body.velocity.set(randomInRange(0, 5), randomInRange(0, 5), randomInRange(0, 5))
     world.add(body)
     bodies.push(body)
-
-    objCount += 1
+    
   }
+
+  
+
 }

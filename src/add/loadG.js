@@ -6,29 +6,26 @@ import GLTFLoader from 'three-gltf-loader';
 import { meshes, scene } from '../three'
 import { world, bodies } from '../cannon'
 import { promisifyLoader } from '../utils/promisifyLoader'
+import randomInRange from '../utils/randomInRange'
 // import { threeToCannon } from 'three-to-cannon';
 // import DRACOLoader from 'aadraco-decoder'
 // import DRACOLoader from 'threejs-ext/src/loaders/DRACOLoader';
 // import cock from '../draco/draco_decoder'
 
-THREE.Cache.enabled = true
+// THREE.Cache.enabled = true
 
 const vec3 = new THREE.Vector3()
 
 export const loadG = async ({
-  name,
   gltf,
-  quantity,
   position,
+  rotation = { x: 0, y: 0, z: 0,},
   mass = 5,
+  quantity = 1,
   // damping, 0 is light, 1 is heavy
   angularDamping = 0.99, // default is 0.01 which just looks silly cos it spins for ages
   linearDamping = 0.01, // linear damping smooths out jitter
 }) => {
-
-  let objCount = 0
-
-  
 
   // const loader = new DRACOLoader()
   // console.log(dracoL)
@@ -41,23 +38,24 @@ export const loadG = async ({
   // loader.setDRACOLoader(new DRACOLoader())
 
   // console.log(new DRACOLoader())
-  
-  
+
 
   // loader.setResourcePath(bin)
   for (var i = 0; i < quantity; i++) {
     const loader = new GLTFLoader()
     const mtlPromiseLoader = promisifyLoader(loader)
     const mesh = await mtlPromiseLoader.load(gltf).then(gltf => gltf.scene)
-    const nameTmp = `${name}-${objCount}`
 
     mesh.traverse(child => {
       if (child instanceof THREE.Mesh) {
         child.castShadow = true
         child.receiveShadow = true
-        child.name = nameTmp
+        child.name = mesh.uuid
+        // child.rotation.setFromVector3(new THREE.Vector3(0, Math.PI /2, Math.PI / 2));    
       }
     })
+
+    // mesh.rotation.setFromVector3(new THREE.Vector3(0, Math.PI /2, Math.PI / 2));
     
     // DRACOLoader.releaseDecoderModule();
 
@@ -74,18 +72,16 @@ export const loadG = async ({
     // if (i !== 0) clonedObj = mesh.clone() // if its looping, start cloning
 
     // add to threejs
-    mesh.name = nameTmp
+    mesh.name = mesh.uuid
     meshes.push(mesh)
-    scene.add(mesh)
+    scene.add(mesh)    
 
     // add to cannon
     const body = new CANNON.Body({ mass, shape, angularDamping, linearDamping })
-    body.name = nameTmp
+    body.name = mesh.uuid
     body.position.set(position.x, position.y, position.z)
-    body.velocity.set(Math.random() * 20, Math.random() * 20, Math.random() * 20)
+    body.velocity.set(randomInRange(-1, 1), randomInRange(-20, 20), randomInRange(-1, 1))
     world.add(body)
     bodies.push(body)
-
-    objCount += 1
   }
 }
