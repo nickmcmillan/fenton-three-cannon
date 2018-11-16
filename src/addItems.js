@@ -98,7 +98,7 @@ export default async function () {
   await delay(1000)
 
   addSphere({
-    quantity: 25,
+    quantity: 12,
     color: 'yellow',//'#' + Math.floor(Math.random() * 16777215).toString(16)
   })
 
