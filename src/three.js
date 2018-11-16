@@ -4,7 +4,10 @@ import {
   Plane,
   Vector3,
   AmbientLight,
+  HemisphereLight,
   DirectionalLight,
+  DirectionalLightHelper,
+  HemisphereLightHelper,
   PCFSoftShadowMap,
   WebGLRenderer
 } from 'three'
@@ -33,41 +36,41 @@ renderer.gammaFactor = 2.2
 // Apsect – We’re simply dividing the browser width and height to get an aspect ratio.
 // Near – This is the distance at which the camera will start rendering scene objects.
 // Far – Anything beyond this distance will not be rendered. Perhaps more commonly known as the draw distance.
-export const camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.5, 60);
+export const camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.5, 100)
 // export const camera = new OrthographicCamera(window.innerWidth / - 50, window.innerWidth / 50, window.innerHeight / 50, window.innerHeight / - 50, 1, 1000);
 
 export const scene = new Scene()
 export const dragPlane = new Plane()
-
-// These are kept in sync
 export const meshes = [] // Three
-
 
 export default function () {
 
-  // camera
-  camera.position.set(20, 60, 20);
-  camera.quaternion.setFromAxisAngle(new Vector3(0, 1, 0), Math.PI / 2);
+  // Camera
   scene.add(camera)
 
-  // scene
-  // scene.fog = new Fog(0xccffff, 30, 100)
-
   // Lights
+  // directional light to cast shadow
   const d = 20
-  const light = new DirectionalLight(0xffffff, 1.25);
-  light.position.set(d, d, d)
-  light.castShadow = true;
-  light.shadow.mapSize.width = 1024  // default is 512
-  light.shadow.mapSize.height = 1024  // default is 512
-  light.shadow.camera.left = -d;
-  light.shadow.camera.right = d;
-  light.shadow.camera.top = d;
-  light.shadow.camera.bottom = -d;
-  light.shadow.camera.far = 3 * d;
-
-  scene.add(light)
-  scene.add(new AmbientLight(0x777777));
+  const lightDir = new DirectionalLight(0xffffff, 1.25)
+  lightDir.position.set(d/2, d, d/2) // default is 0, 1, 0 - which is shining directly from top
+  lightDir.castShadow = true
+  lightDir.shadow.mapSize.width = 1024  // default is 512
+  lightDir.shadow.mapSize.height = 1024  // default is 512
+  lightDir.shadow.camera.near = 0.5 // default 0.5
+  lightDir.shadow.camera.far = 3 * d // default 500
+  lightDir.shadow.camera.left = -d
+  lightDir.shadow.camera.right = d
+  lightDir.shadow.camera.top = d
+  lightDir.shadow.camera.bottom = -d
+  scene.add(lightDir)
+  
+  // hemi light to add a little bit of colour
+  const lightHemi = new HemisphereLight(0x404040, 'pink', 0.75)
+  lightHemi.position.set(0, 1, 0)
+  scene.add(lightHemi)
+  
+  // ambient light to illuminate the whole scene
+  scene.add(new AmbientLight(0x404040)) 
 
   addGround()
 
