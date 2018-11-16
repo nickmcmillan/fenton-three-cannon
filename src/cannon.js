@@ -8,8 +8,14 @@ export const bodies = []
 export let cannonDebugRenderer
 
 const gui = new GUI()
-
 const timeStep = 1 / 60
+const settings = {
+  gx: 0,
+  gy: -40,
+  gz: 0,
+  restitution: 0.5,
+}
+
 export const updatePhysics = function () {
   world.step(timeStep)
   for (var i = 0; i < meshes.length; i++) {
@@ -27,24 +33,16 @@ export const updatePhysics = function () {
   }
 }
 
-const settings = {
-  gx: 0,
-  gy: -40,
-  gz: 0,
-  restitution: 0.5,
-}
-
-
 export default function () {
   // Setup our world
-  world.quatNormalizeSkip = 0;
-  world.quatNormalizeFast = false;
+  world.quatNormalizeSkip = 0
+  world.quatNormalizeFast = false
   // world.solver.iterations = 2
-  world.defaultContactMaterial.contactEquationRelaxation = 3; // lower = ground is lava
-  world.defaultContactMaterial.contactEquationStiffness = 1e8;
+  world.defaultContactMaterial.contactEquationRelaxation = 3
+  world.defaultContactMaterial.contactEquationStiffness = 1e8
   world.defaultContactMaterial.restitution = 0.5
   world.defaultContactMaterial.friction = 0.1  
-  // world.defaultContactMaterial.contactEquationRegularizationTime = 3;
+  // world.defaultContactMaterial.contactEquationRegularizationTime = 3
 
   // add dat.gui bindings
   gui.add(settings, 'gx', -40, 40).onChange(function(val) {
@@ -60,9 +58,8 @@ export default function () {
     if (!isNaN(val)) world.defaultContactMaterial.restitution = val
   })
 
-  world.gravity.set(settings.gx, settings.gy, settings.gz);
-  world.broadphase = new CANNON.NaiveBroadphase();
+  world.gravity.set(settings.gx, settings.gy, settings.gz)
+  world.broadphase = new CANNON.NaiveBroadphase()
 
   cannonDebugRenderer = new CannonDebugRenderer(scene, world)
-  // addJointBody()
 }
