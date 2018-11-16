@@ -20,7 +20,7 @@ export const addSphere = ({
 }) => {
 
   for (let i = 0; i < quantity; i++) {
-    const localRadius = randomInRange(0.5, 0.75)
+    const localRadius = randomInRange(1, 2) / 2.5
 
     // const { r, w, h } = dimensions
     const geo = new SphereGeometry(localRadius, 25, 25) // sphere resolution
