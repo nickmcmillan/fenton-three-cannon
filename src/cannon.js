@@ -16,6 +16,7 @@ export const updatePhysics = function () {
     if (outY) {
       bodies[i].velocity.set(Math.random(), Math.random(), Math.random())
       bodies[i].position.set(0, 20, 0)
+      bodies[i].angularVelocity.set(0, 0, 0.5)
     }
     // get the Three mesh, and apply the Cannon body to it
     meshes[i].position.copy(bodies[i].position)

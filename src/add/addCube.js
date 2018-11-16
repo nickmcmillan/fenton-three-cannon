@@ -18,6 +18,7 @@ export const addCube = ({
   angularDamping = 0.99,
   linearDamping = 0.01, // linear damping smooths out jitter
   color = 0xbad455,
+  angularVelocity = { x: 0, y: 0, z: 0.5, }, // modifying it a little so the items don't just drop perfectly (which looks unnatural)
   material = 'MeshLambertMaterial'
 }) => {
   const { x, y, z } = dimensions
@@ -34,7 +35,7 @@ export const addCube = ({
     meshes.push(mesh)
     scene.add(mesh)
     // CANNON
-    const body = new CANNON.Body({ mass, angularDamping, linearDamping, shape })
+    const body = new CANNON.Body({ mass, angularDamping, linearDamping, angularVelocity, shape })
     body.name = `${name}-${objCount}`
     body.position.set(Math.random() * 10, Math.random() * 20, Math.random() * 10)
     world.add(body)
