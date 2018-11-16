@@ -3,9 +3,9 @@ import { Math as MathThree } from 'three'
 // import EffectComposer, { RenderPass, ShaderPass } from 'three-effectcomposer-es6'
 // import { SMAAEffect, EffectComposer, EffectPass, RenderPass } from 'postprocessing'
 
-import initCannon, { updatePhysics, cannonDebugRenderer } from './cannon'
+import initCannon, { updatePhysics, /*cannonDebugRenderer*/ } from './cannon'
 import initThree, { camera, scene, renderer } from './three'
-import addModels from './addModels'
+import addItems from './addItems'
 import stats from './helpers/stats'
 
 import updateDragPosition from './utils/updateDragPosition'
@@ -50,4 +50,4 @@ const loop = function () {
 initThree()
 initCannon()
 loop()
-addModels()
+addItems()
