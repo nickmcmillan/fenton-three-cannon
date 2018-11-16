@@ -2,19 +2,20 @@ import {
   PerspectiveCamera,
   Scene,
   Plane,
-  Vector3,
+  // Vector3,
   AmbientLight,
   HemisphereLight,
   DirectionalLight,
-  DirectionalLightHelper,
-  HemisphereLightHelper,
+  // DirectionalLightHelper,
+  // HemisphereLightHelper,
   PCFSoftShadowMap,
   WebGLRenderer
 } from 'three'
 
 import { addGround } from './add/addGround'
 import { handleMove, handleDown, handleUp } from './utils/handleInputs'
-import { onWindowResize } from './utils/handleResize'
+import handleResize from './utils/handleResize'
+import debounce from './utils/debounce'
 
 export const renderer = new WebGLRenderer({
   canvas: document.getElementById('canvas'),
@@ -74,9 +75,7 @@ export default function () {
 
   addGround()
 
-  // TODO: debounce
-  window.addEventListener('resize', onWindowResize, false)
-
+  window.addEventListener('resize', debounce(handleResize, 150), false)
   window.addEventListener('mousedown', handleDown, false)
   window.addEventListener('mousemove', handleMove, false)
   window.addEventListener('mouseup', handleUp, false)

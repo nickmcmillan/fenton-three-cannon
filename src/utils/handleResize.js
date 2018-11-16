@@ -1,6 +1,6 @@
 import { camera, renderer } from '../three'
 
-export const onWindowResize = function () {
+export default function () {
   camera.aspect = window.innerWidth / window.innerHeight
   camera.updateProjectionMatrix()
   //controls.handleResize()
