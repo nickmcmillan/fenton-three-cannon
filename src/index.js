@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+
 // import EffectComposer, { RenderPass, ShaderPass } from 'three-effectcomposer-es6'
 // import { SMAAEffect, EffectComposer, EffectPass, RenderPass } from 'postprocessing'
 
@@ -22,6 +23,7 @@ import './index.scss'
 
 let theta = 6
 const radius = 20
+
 
 const render = function () {
   theta += 0.06

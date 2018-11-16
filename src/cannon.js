@@ -1,10 +1,13 @@
 import * as CANNON from 'cannon'
+import { GUI } from 'dat.gui'
 import { CannonDebugRenderer } from './helpers/cannonDebugRenderer'
 import { meshes, scene } from './three'
 
 export const world = new CANNON.World()
 export const bodies = []
 export let cannonDebugRenderer
+
+const gui = new GUI()
 
 const timeStep = 1 / 60
 export const updatePhysics = function () {
@@ -24,6 +27,14 @@ export const updatePhysics = function () {
   }
 }
 
+const settings = {
+  gx: 0,
+  gy: -40,
+  gz: 0,
+  restitution: 0.5,
+}
+
+
 export default function () {
   // Setup our world
   world.quatNormalizeSkip = 0;
@@ -35,7 +46,21 @@ export default function () {
   world.defaultContactMaterial.friction = 0.1  
   // world.defaultContactMaterial.contactEquationRegularizationTime = 3;
 
-  world.gravity.set(0, -40, 0);
+  // add dat.gui bindings
+  gui.add(settings, 'gx', -40, 40).onChange(function(val) {
+    if (!isNaN(val)) world.gravity.set(val, settings.gy, settings.gz)
+  })
+  gui.add(settings, 'gy', -40, 10).onChange(function(val) {
+    if (!isNaN(val)) world.gravity.set(settings.gx, val, settings.gz)
+  })
+  gui.add(settings, 'gz', -40, 40).onChange(function(val) {
+    if (!isNaN(val)) world.gravity.set(settings.gx, settings.gy, val)
+  })
+  gui.add(settings, 'restitution', 0.5, 2).onChange(function(val) {
+    if (!isNaN(val)) world.defaultContactMaterial.restitution = val
+  })
+
+  world.gravity.set(settings.gx, settings.gy, settings.gz);
   world.broadphase = new CANNON.NaiveBroadphase();
 
   cannonDebugRenderer = new CannonDebugRenderer(scene, world)
