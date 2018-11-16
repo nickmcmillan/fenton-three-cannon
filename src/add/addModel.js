@@ -1,4 +1,4 @@
-import { Vector3, Mesh, Box3 } from 'three'
+import { Vector3, Mesh, Box3, Cache } from 'three'
 import * as CANNON from 'cannon'
 import GLTFLoader from 'three-gltf-loader';
 // import DracoDecoderModule from 'aadraco-decoder';
@@ -12,7 +12,7 @@ import randomInRange from '../utils/randomInRange'
 // import DRACOLoader from 'threejs-ext/src/loaders/DRACOLoader';
 // import dracoDecoder from '../draco/draco_decoder'
 
-// Cache.enabled = true
+Cache.enabled = true // so Three doesn't reload the glb file if quantity > 1
 
 const vec3 = new Vector3()
 
