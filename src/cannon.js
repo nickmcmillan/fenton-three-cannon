@@ -1,11 +1,11 @@
 import * as CANNON from 'cannon'
 import { GUI } from 'dat.gui'
-import { CannonDebugRenderer } from './helpers/cannonDebugRenderer'
-import { meshes, scene } from './three'
+// import { CannonDebugRenderer } from './helpers/cannonDebugRenderer'
+import { meshes, /* scene */ } from './three'
 
 export const world = new CANNON.World()
 export const bodies = []
-export let cannonDebugRenderer
+// export let cannonDebugRenderer
 
 const gui = new GUI()
 const timeStep = 1 / 60
@@ -61,5 +61,5 @@ export default function () {
   world.gravity.set(settings.gx, settings.gy, settings.gz)
   world.broadphase = new CANNON.NaiveBroadphase()
 
-  cannonDebugRenderer = new CannonDebugRenderer(scene, world)
+  // cannonDebugRenderer = new CannonDebugRenderer(scene, world)
 }
