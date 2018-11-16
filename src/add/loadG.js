@@ -25,6 +25,7 @@ export const loadG = async ({
   // damping, 0 is light, 1 is heavy
   angularDamping = 0.99, // default is 0.01 which just looks silly cos it spins for ages
   linearDamping = 0.01, // linear damping smooths out jitter
+  angularVelocity = { x: 0, y: 0, z: 0.5, }, // modifying it a little so the items don't just drop perfectly (which looks unnatural)
 }) => {
 
   // const loader = new DRACOLoader()
@@ -77,7 +78,7 @@ export const loadG = async ({
     scene.add(mesh)    
 
     // add to cannon
-    const body = new CANNON.Body({ mass, shape, angularDamping, linearDamping })
+    const body = new CANNON.Body({ mass, shape, angularDamping, linearDamping, angularVelocity })
     body.name = mesh.uuid
     body.position.set(position.x, position.y, position.z)
     body.velocity.set(randomInRange(-1, 1), randomInRange(-20, 20), randomInRange(-1, 1))
