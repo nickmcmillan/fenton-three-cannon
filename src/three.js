@@ -1,10 +1,19 @@
-import * as THREE from 'three'
+import {
+  PerspectiveCamera,
+  Scene,
+  Plane,
+  Vector3,
+  AmbientLight,
+  DirectionalLight,
+  PCFSoftShadowMap,
+  WebGLRenderer
+} from 'three'
 
 import { addGround } from './add/addGround'
 import { handleMove, handleDown, handleUp } from './utils/handleInputs'
 import { onWindowResize } from './utils/handleResize'
 
-export const renderer = new THREE.WebGLRenderer({
+export const renderer = new WebGLRenderer({
   canvas: document.getElementById('canvas'),
   antialias: true,
 })
@@ -14,7 +23,7 @@ renderer.setSize(window.innerWidth, window.innerHeight)
 renderer.setClearColor(0xffffff)
 // renderer.gammaInput = true
 renderer.shadowMap.enabled = true
-renderer.shadowMap.type = THREE.PCFSoftShadowMap // shadowMapType options are THREE.BasicShadowMap | THREE.PCFShadowMap | THREE.PCFSoftShadowMap
+renderer.shadowMap.type = PCFSoftShadowMap // shadowMapType options are BasicShadowMap | PCFShadowMap | PCFSoftShadowMap
 renderer.gammaOutput = true
 renderer.gammaFactor = 2.2
 
@@ -24,11 +33,11 @@ renderer.gammaFactor = 2.2
 // Apsect – We’re simply dividing the browser width and height to get an aspect ratio.
 // Near – This is the distance at which the camera will start rendering scene objects.
 // Far – Anything beyond this distance will not be rendered. Perhaps more commonly known as the draw distance.
-export const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.5, 60);
-// export const camera = new THREE.OrthographicCamera(window.innerWidth / - 50, window.innerWidth / 50, window.innerHeight / 50, window.innerHeight / - 50, 1, 1000);
+export const camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.5, 60);
+// export const camera = new OrthographicCamera(window.innerWidth / - 50, window.innerWidth / 50, window.innerHeight / 50, window.innerHeight / - 50, 1, 1000);
 
-export const scene = new THREE.Scene()
-export const dragPlane = new THREE.Plane()
+export const scene = new Scene()
+export const dragPlane = new Plane()
 
 // These are kept in sync
 export const meshes = [] // Three
@@ -38,15 +47,15 @@ export default function () {
 
   // camera
   camera.position.set(20, 60, 20);
-  camera.quaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI / 2);
+  camera.quaternion.setFromAxisAngle(new Vector3(0, 1, 0), Math.PI / 2);
   scene.add(camera)
 
   // scene
-  // scene.fog = new THREE.Fog(0xccffff, 30, 100)
+  // scene.fog = new Fog(0xccffff, 30, 100)
 
   // Lights
   const d = 20
-  const light = new THREE.DirectionalLight(0xffffff, 1.25);
+  const light = new DirectionalLight(0xffffff, 1.25);
   light.position.set(d, d, d)
   light.castShadow = true;
   light.shadow.mapSize.width = 1024  // default is 512
@@ -58,7 +67,7 @@ export default function () {
   light.shadow.camera.far = 3 * d;
 
   scene.add(light)
-  scene.add(new THREE.AmbientLight(0x777777));
+  scene.add(new AmbientLight(0x777777));
 
   addGround()
 

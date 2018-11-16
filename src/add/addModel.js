@@ -1,4 +1,4 @@
-import * as THREE from 'three'
+import { Vector3, Mesh, Box3 } from 'three'
 import * as CANNON from 'cannon'
 import GLTFLoader from 'three-gltf-loader';
 // import DracoDecoderModule from 'aadraco-decoder';
@@ -12,9 +12,9 @@ import randomInRange from '../utils/randomInRange'
 // import DRACOLoader from 'threejs-ext/src/loaders/DRACOLoader';
 // import dracoDecoder from '../draco/draco_decoder'
 
-// THREE.Cache.enabled = true
+// Cache.enabled = true
 
-const vec3 = new THREE.Vector3()
+const vec3 = new Vector3()
 
 export const addModel = async ({
   gltf,
@@ -47,21 +47,21 @@ export const addModel = async ({
     const mesh = await mtlPromiseLoader.load(gltf).then(gltf => gltf.scene)
 
     mesh.traverse(child => {
-      if (child instanceof THREE.Mesh) {
+      if (child instanceof Mesh) {
         child.castShadow = true
         child.receiveShadow = true
         child.name = mesh.uuid
-        // child.rotation.setFromVector3(new THREE.Vector3(0, Math.PI /2, Math.PI / 2));    
+        // child.rotation.setFromVector3(new Vector3(0, Math.PI /2, Math.PI / 2));    
       }
     })
 
-    // mesh.rotation.setFromVector3(new THREE.Vector3(0, Math.PI /2, Math.PI / 2));
+    // mesh.rotation.setFromVector3(new Vector3(0, Math.PI /2, Math.PI / 2));
     
     // DRACOLoader.releaseDecoderModule();
 
 
     // get dimensions from three  
-    const tempBox = new THREE.Box3().setFromObject(mesh)
+    const tempBox = new Box3().setFromObject(mesh)
     const { x, y, z } = tempBox.getSize(vec3)
 
     // apply dimensions to cannon

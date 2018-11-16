@@ -1,12 +1,12 @@
-import * as THREE from 'three'
+import { Vector3, Raycaster } from 'three'
 import { camera, meshes, dragPlane, } from '../three'
 import { bodies } from '../cannon'
 import { addMouseConstraint, removeJointConstraint } from './handleJoints'
 import updateDragPosition from './updateDragPosition'
 
-const backVector = new THREE.Vector3(0, 0, -1)
-const raycaster = new THREE.Raycaster()
-const mouse3D = new THREE.Vector3()
+const backVector = new Vector3(0, 0, -1)
+const raycaster = new Raycaster()
+const mouse3D = new Vector3()
 const docBody = document.body
 
 let draggedItem

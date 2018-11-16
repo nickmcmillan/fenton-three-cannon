@@ -3,11 +3,11 @@
 // So instead this project uses the logic found in:
 // http://toxicfork.github.io/react-three-renderer-example/#/webgl_physics_mousepick
 
-import * as THREE from 'three'
+import { Raycaster, Vector2 } from 'three'
 import { camera } from '../three'
 
-const raycaster = new THREE.Raycaster()
-const tempVector2 = new THREE.Vector2()
+const raycaster = new Raycaster()
+const tempVector2 = new Vector2()
 
 const getRelativeMouseCoords = function (screenMouseCoords) {
 

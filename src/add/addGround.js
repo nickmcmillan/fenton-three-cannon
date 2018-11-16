@@ -1,4 +1,4 @@
-import * as THREE from 'three'
+import { PlaneGeometry, MeshLambertMaterial, Mesh, Vector3 } from 'three'
 import * as CANNON from 'cannon'
 
 import { scene } from '../three'
@@ -10,17 +10,17 @@ export const addGround = function () {
   
   // THREE
   // https://stackoverflow.com/a/52726872/2255980
-  const innerGeo = new THREE.PlaneGeometry(groundSize, groundSize)
-  const innerMat = new THREE.MeshLambertMaterial({ color: 'blue' })
-  const innerMesh = new THREE.Mesh(innerGeo, innerMat)
-  innerMesh.quaternion.setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI / 2)
+  const innerGeo = new PlaneGeometry(groundSize, groundSize)
+  const innerMat = new MeshLambertMaterial({ color: 'blue' })
+  const innerMesh = new Mesh(innerGeo, innerMat)
+  innerMesh.quaternion.setFromAxisAngle(new Vector3(1, 0, 0), -Math.PI / 2)
   innerMesh.receiveShadow = true
   scene.add(innerMesh)
 
-  const outerGeo = new THREE.PlaneGeometry(bounds, bounds)
-  const outerMat = new THREE.MeshLambertMaterial({ color: 'white' })
-  const outerMesh = new THREE.Mesh(outerGeo, outerMat)
-  outerMesh.quaternion.setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI / 2)
+  const outerGeo = new PlaneGeometry(bounds, bounds)
+  const outerMat = new MeshLambertMaterial({ color: 'white' })
+  const outerMesh = new Mesh(outerGeo, outerMat)
+  outerMesh.quaternion.setFromAxisAngle(new Vector3(1, 0, 0), -Math.PI / 2)
   outerMesh.position.y = -0.01
   outerMesh.receiveShadow = true
   scene.add(outerMesh)

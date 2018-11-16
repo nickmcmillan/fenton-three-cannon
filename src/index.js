@@ -1,4 +1,4 @@
-import * as THREE from 'three'
+import { Math as MathThree } from 'three'
 
 // import EffectComposer, { RenderPass, ShaderPass } from 'three-effectcomposer-es6'
 // import { SMAAEffect, EffectComposer, EffectPass, RenderPass } from 'postprocessing'
@@ -13,7 +13,7 @@ import updateDragPosition from './utils/updateDragPosition'
 
 import './index.scss'
 
-// const clock = new THREE.Clock()
+// const clock = new Clock()
 // const composer = new EffectComposer(renderer)
 // const effectPass = new EffectPass(camera, new SMAAEffect())
 // effectPass.renderToScreen = true
@@ -28,9 +28,9 @@ const radius = 20
 const render = function () {
   theta += 0.06
   
-  camera.position.x = radius * Math.sin(THREE.Math.degToRad(theta))
-  camera.position.y = THREE.Math.degToRad(360 * 2.5)
-  camera.position.z = radius * Math.cos(THREE.Math.degToRad(theta))
+  camera.position.x = radius * Math.sin(MathThree.degToRad(theta))
+  camera.position.y = MathThree.degToRad(360 * 2.5)
+  camera.position.z = radius * Math.cos(MathThree.degToRad(theta))
   camera.lookAt(scene.position)
   renderer.render(scene, camera)
   // composer.render(clock.getDelta())
