@@ -6,7 +6,7 @@ import { world } from '../cannon'
 
 export const addGround = function () {
   const groundSize = 10 // this element is just for show
-  const bounds = 50 // if an object exceeds these bounds, it drops off the edge
+  const bounds = 30 // if an object exceeds these bounds, it drops off the edge
   
   // THREE
   // https://stackoverflow.com/a/52726872/2255980
