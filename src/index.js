@@ -5,12 +5,14 @@ import { Math as MathThree } from 'three'
 import initCannon, { updatePhysics, /*cannonDebugRenderer*/ } from './cannon'
 import initThree, { camera, scene, renderer } from './three'
 import addItems from './addItems'
-import stats from './helpers/stats'
+// import stats from './helpers/stats'
 
 import updateDragPosition from './utils/updateDragPosition'
 
 
 import './index.scss'
+import * as serviceWorker from './serviceWorker';
+
 
 // const clock = new Clock()
 // const composer = new EffectComposer(renderer)
@@ -37,11 +39,11 @@ const render = function () {
 }
 
 const loop = function () {
-  stats.begin()
+  // stats.begin()
   updatePhysics()
   render()
   // cannonDebugRenderer.update()
-  stats.end()
+  // stats.end()
   requestAnimationFrame(loop)
 }
 
@@ -49,3 +51,9 @@ initThree()
 initCannon()
 loop()
 addItems()
+
+// If you want your app to work offline and load faster, you can change
+// unregister() to register() below. Note this comes with some pitfalls.
+// Learn more about service workers: http://bit.ly/CRA-PWA
+serviceWorker.register();
+
