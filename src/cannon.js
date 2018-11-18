@@ -59,7 +59,7 @@ export default function () {
   gui.add(settings, 'gz', -40, 40).onChange(function(val) {
     if (!isNaN(val)) world.gravity.set(settings.gx, settings.gy, val)
   })
-  gui.add(settings, 'restitution', 0.5, 1).onChange(function(val) {
+  gui.add(settings, 'restitution', 0.5, 2).onChange(function(val) {
     if (!isNaN(val)) world.defaultContactMaterial.restitution = val
   })
 

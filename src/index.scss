@@ -151,6 +151,26 @@ ul {
   z-index: -10;
 }
 
+.footer {
+  position: fixed;
+  bottom: 1rem;
+  width: 100%;
+  text-align: center;
+  font-size: 0.8rem;
+  mix-blend-mode: hard-light;
+  will-change: opacity;
+}
+
+.footer_link {
+  border-bottom: 3px solid yellow;
+
+  &:hover,
+  &:focus {
+    border-color: inherit;
+    text-decoration: none;
+  }
+}
+
 @media (min-width: 576px) {
   .container {
     max-width: 330px; 
@@ -179,53 +199,45 @@ ul {
   }
 }
 
-.dg.main .close-button {
+.dg.main.a .close-button {
   background-color: #ccc;
 }
 
-.dg.main .close-button:hover {
+.dg.main.a .close-button:hover {
   background-color: #ddd;
 }
 
-.dg {
+.dg.main.a {
   color: #555;
   text-shadow: none !important;
 }
 
-.dg.main::-webkit-scrollbar-thumb {
+.dg.main.a::-webkit-scrollbar-thumb {
   background: #bbb;
 }
 
-.dg li:not(.folder) {
+.dg.main.a li:not(.folder) {
   background: #fafafa;
   border-bottom: 1px solid #ddd;
 }
 
-.dg li.save-row .button {
-  text-shadow: none !important;
-}
-
-.dg .cr.function:hover,.dg .cr.boolean:hover {
-  background: #fff;
-}
-
-.dg .c input[type=text] {
+.dg.main.a .c input[type=text] {
   background: #e9e9e9;
 }
 
-.dg .c input[type=text]:hover {
+.dg.main.a .c input[type=text]:hover {
   background: #eee;
 }
 
-.dg .c input[type=text]:focus {
+.dg.main.a .c input[type=text]:focus {
   background: #eee;
   color: #555;
 }
 
-.dg .c .slider {
+.dg.main.a .c .slider {
   background: #e9e9e9;
 }
 
-.dg .c .slider:hover {
+.dg.main.a .c .slider:hover {
   background: #eee;
 }
