@@ -1,6 +1,5 @@
 import { Math as MathThree } from 'three'
 
-// import EffectComposer, { RenderPass, ShaderPass } from 'three-effectcomposer-es6'
 // import { SMAAEffect, EffectComposer, EffectPass, RenderPass } from 'postprocessing'
 
 import initCannon, { updatePhysics, /*cannonDebugRenderer*/ } from './cannon'
@@ -21,9 +20,8 @@ import './index.scss'
 // composer.addPass(effectPass)
 
 
-let theta = 6
+let theta = 15
 const radius = 20
-
 
 const render = function () {
   theta += 0.06

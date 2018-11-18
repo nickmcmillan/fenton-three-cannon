@@ -19,12 +19,16 @@ const settings = {
 export const updatePhysics = function () {
   world.step(timeStep)
   for (var i = 0; i < meshes.length; i++) {
-    // check if the body falls below the ground
+    const { x, y, z } = bodies[i].position
+    // if the body falls below the ground
+    const outY = y < -10 
+    // if the body exceeds some made up boundaries
+    const outX = x < -20 || x > 20
+    const outZ = z < -20 || x > 20
     // if so, reset its velocity & position
-    const outY = bodies[i].position.y < -10
-    if (outY) {
+    if (outY || outX || outZ) {
       bodies[i].velocity.set(Math.random(), Math.random(), Math.random())
-      bodies[i].position.set(0, 20, 0)
+      bodies[i].position.set(0, 34, 0)
       bodies[i].angularVelocity.set(0, 0, 0.5)
     }
     // get the Three mesh, and apply the Cannon body to it
@@ -32,6 +36,7 @@ export const updatePhysics = function () {
     meshes[i].quaternion.copy(bodies[i].quaternion)
   }
 }
+
 
 export default function () {
   // Setup our world
@@ -48,16 +53,18 @@ export default function () {
   gui.add(settings, 'gx', -40, 40).onChange(function(val) {
     if (!isNaN(val)) world.gravity.set(val, settings.gy, settings.gz)
   })
-  gui.add(settings, 'gy', -40, 10).onChange(function(val) {
+  gui.add(settings, 'gy', -40, 1).onChange(function(val) {
     if (!isNaN(val)) world.gravity.set(settings.gx, val, settings.gz)
   })
   gui.add(settings, 'gz', -40, 40).onChange(function(val) {
     if (!isNaN(val)) world.gravity.set(settings.gx, settings.gy, val)
   })
-  gui.add(settings, 'restitution', 0.5, 2).onChange(function(val) {
+  gui.add(settings, 'restitution', 0.5, 1).onChange(function(val) {
     if (!isNaN(val)) world.defaultContactMaterial.restitution = val
   })
 
+  gui.close()
+  
   world.gravity.set(settings.gx, settings.gy, settings.gz)
   world.broadphase = new CANNON.NaiveBroadphase()
 

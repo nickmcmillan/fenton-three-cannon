@@ -24,41 +24,46 @@ export default async function () {
   //   quantity: 3
   // })
 
+  await delay(200)
 
   addModel({
     gltf: kick,
     mass: 25,
-    position: { x: 0, y: 30, z: 0, }
+    position: { x: 0, y: 25, z: 0, }
   })
+
+  await delay(200)
 
   addModel({
     gltf: snare,
     mass: 8,
     quantity: 1,
-    position: { x: -1, y: 40, z: 3, },
+    position: { x: -1, y: 35, z: 3, },
   })
 
   addModel({
     gltf: hihat,
     quantity: 1,
     mass: 8,
-    position: { x: 4, y: 40, z: 2, },
+    position: { x: 4, y: 38, z: 2, },
   })
 
-  await delay(2500)
+  await delay(2000)
   
   addModel({
     gltf: bass,
     mass: 8,
     quantity: 1,
-    position: { x: 3, y: 50, z: 6, },
+    position: { x: 3, y: 36, z: 6, },
   })
+
+  await delay(100)
 
   addModel({
     gltf: mustang,
     quantity: 1,
     mass: 5,
-    position: { x: 3, y: 40, z: 3, },
+    position: { x: 3, y: 24, z: 3, },
   })
 
   await delay(2000)
@@ -67,14 +72,14 @@ export default async function () {
     gltf: amp,
     quantity: 1,
     mass: 15,
-    position: { x: 4, y: 50, z: 2, },
+    position: { x: 4, y: 33, z: 2, },
   })
 
   addModel({
     gltf: jupiter,
     mass: 7,
     quantity: 1,
-    position: { x: -3, y: 25, z: 4, },
+    position: { x: -3, y: 13, z: 4, },
   })
 
   await delay(2000)
@@ -83,7 +88,7 @@ export default async function () {
     gltf: pedal,
     mass: 1,
     quantity: 10,
-    position: { x: -11, y: 11, z: -5, },
+    position: { x: -9, y: 11, z: -4, },
   })
 
   await delay(1500)
@@ -92,7 +97,7 @@ export default async function () {
     gltf: op1,
     mass: 1,
     quantity: 1,
-    position: { x: 7, y: 15, z: 1, },
+    position: { x: 7, y: 8, z: 1, },
   })
 
   await delay(1000)

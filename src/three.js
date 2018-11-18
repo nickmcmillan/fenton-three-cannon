@@ -24,7 +24,7 @@ export const renderer = new WebGLRenderer({
 
 // renderer.setPixelRatio(window.devicePixelRatio * 0.5)
 renderer.setSize(window.innerWidth, window.innerHeight)
-renderer.setClearColor(0xffffff)
+renderer.setClearColor(0xefefff)
 // renderer.gammaInput = true
 renderer.shadowMap.enabled = true
 renderer.shadowMap.type = PCFSoftShadowMap // shadowMapType options are BasicShadowMap | PCFShadowMap | PCFSoftShadowMap
