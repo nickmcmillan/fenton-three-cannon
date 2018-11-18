@@ -241,3 +241,9 @@ ul {
 .dg.main.a .c .slider:hover {
   background: #eee;
 }
+
+.dg.main.a .property-name, 
+.dg.main.a .title, {
+  text-shadow: none;
+  color: #333;
+}
