@@ -1,3 +1,5 @@
+//https://github.com/schteppe/cannon.js/tree/master/tools/threejs
+
 /* eslint-disable */
 var THREE = require('three')
 var CANNON = require('cannon')
