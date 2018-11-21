@@ -34,19 +34,36 @@ export const updatePhysics = function () {
 
 
 export default function () {
-  // Setup our world
-  world.quatNormalizeSkip = 0
-  world.quatNormalizeFast = false
-  // world.solver.iterations = 2
-  world.defaultContactMaterial.contactEquationRelaxation = 3
-  world.defaultContactMaterial.contactEquationStiffness = 1e8
-  world.defaultContactMaterial.restitution = settings.restitution
-  world.defaultContactMaterial.friction = 0.1  
-  // world.defaultContactMaterial.contactEquationRegularizationTime = 3
 
-  
-  world.gravity.set(settings.gx, settings.gy, settings.gz)
+  // const conmat = new CANNON.Material('boob')
+  // world.addMaterial(conmat)
+
+  // const material = new CANNON.ContactMaterial(
+  //   conmat, conmat,
+  //   {
+  //     // friction: 10,
+  //     restitution: 100,
+  //     contactEquationRelaxation: 1000,
+  //     // contactEquationStiffness: 5,
+  //     frictionEquationStiffness: 5,
+  //   }
+  // )
+
+  // world.addContactMaterial(material)
+
+  // Setup our world
+  world.allowSleep = true
+  world.solver.iterations = 5 // 10
+  // world.defaultContactMaterial.contactEquationRegularizationTime = 3 // 3
+  world.defaultContactMaterial.contactEquationRelaxation = 3 // 3
+  world.defaultContactMaterial.contactEquationStiffness = settings.contactEquationStiffness // 1e7
+  world.defaultContactMaterial.friction = 0.1 // 0.3
+  // world.defaultContactMaterial.frictionEquationRelaxation = 3 // 3
+  // world.defaultContactMaterial.frictionEquationStiffness = 10000000 // 10000000
+  world.defaultContactMaterial.restitution = settings.restitution
+
   world.broadphase = new CANNON.NaiveBroadphase()
+  world.gravity.set(settings.gx, settings.gy, settings.gz)
 
   // cannonDebugRenderer = new CannonDebugRenderer(scene, world)
 }
