@@ -10,15 +10,16 @@ export const bodies = []
 
 
 const timeStep = 1 / 60
+const resetBoundary = 40
 export const updatePhysics = function () {
   world.step(timeStep)
   for (var i = 0; i < meshes.length; i++) {
     const { x, y, z } = bodies[i].position
     // if the body falls below the ground
-    const outY = y < -10 
+    const outY = y < -10
     // if the body exceeds some made up boundaries
-    const outX = x < -20 || x > 20
-    const outZ = z < -20 || x > 20
+    const outX = x < -resetBoundary || x > resetBoundary
+    const outZ = z < -resetBoundary || x > resetBoundary
     // if so, reset its velocity & position
     if (outY || outX || outZ) {
       bodies[i].velocity.set(Math.random(), Math.random(), Math.random())
