@@ -24,7 +24,7 @@ export const addModel = async ({
   quantity = 1, // damping, 0 is light, 1 is heavy
   angularDamping = 0.99, // default is 0.01 which just looks silly cos it spins for ages
   linearDamping = 0.01, // linear damping smooths out jitter
-  angularVelocity = { x: 0, y: 0, z: 0.5, }, // modifying it a little so the items don't just drop perfectly (which looks unnatural)
+  angularVelocity = { x: 0, y: 0.5, z: 0.5, }, // modifying it a little so the items don't just drop perfectly (which looks unnatural)
 }) => {
 
   // const loader = new DRACOLoader()
@@ -45,6 +45,8 @@ export const addModel = async ({
     const loader = new GLTFLoader()
     const mtlPromiseLoader = promisifyLoader(loader)
     const mesh = await mtlPromiseLoader.load(gltf).then(gltf => gltf.scene)
+    // console.log(mesh)
+    
 
     mesh.traverse(child => {
       if (child instanceof Mesh) {
@@ -64,8 +66,9 @@ export const addModel = async ({
     const tempBox = new Box3().setFromObject(mesh)
     const { x, y, z } = tempBox.getSize(vec3)
 
-    // apply dimensions to cannon
+    // apply dimensions to cannon (but halve them)
     const shape = new CANNON.Box(new CANNON.Vec3(x / 2, y / 2, z / 2))
+    // const physicsMaterial = new CANNON.Material('physicsMaterial')
 
   
     // let clonedObj = mesh
@@ -76,8 +79,25 @@ export const addModel = async ({
     meshes.push(mesh)
     scene.add(mesh)    
 
+    
+    // const material = new CANNON.ContactMaterial(
+    //   physicsMaterial,
+    //   {
+    //     // friction: 10,
+    //     restitution: 2.5,
+    //     // contactEquationRelaxation: 1,
+    //     // contactEquationStiffness: 5,
+    //     frictionEquationStiffness: 5,
+    //   }
+    // )
+    
     // add to cannon
-    const body = new CANNON.Body({ mass, shape, angularDamping, linearDamping, angularVelocity })
+    const body = new CANNON.Body({ mass, shape, angularDamping, linearDamping, angularVelocity, /*material*/ })
+
+
+
+    console.log(body)
+    
     body.name = mesh.uuid
     body.position.set(position.x, position.y, position.z)
     body.velocity.set(randomInRange(-1, 1), randomInRange(-20, 20), randomInRange(-1, 1))
