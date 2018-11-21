@@ -96,7 +96,7 @@ export const addModel = async ({
 
 
 
-    console.log(body)
+    // console.log(body)
     
     body.name = mesh.uuid
     body.position.set(position.x, position.y, position.z)
