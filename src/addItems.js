@@ -57,13 +57,13 @@ export default async function () {
     position: { x: 3, y: 36, z: 6, },
   })
 
-  await delay(100)
+  await delay(250)
 
   addModel({
     gltf: mustang,
     quantity: 1,
     mass: 5,
-    position: { x: 3, y: 24, z: 3, },
+    position: { x: 5, y: 38, z: 1, },
   })
 
   await delay(2000)
@@ -72,14 +72,14 @@ export default async function () {
     gltf: amp,
     quantity: 1,
     mass: 15,
-    position: { x: 4, y: 33, z: 2, },
+    position: { x: 6, y: 33, z: 5, },
   })
 
   addModel({
     gltf: jupiter,
     mass: 7,
     quantity: 1,
-    position: { x: -3, y: 13, z: 4, },
+    position: { x: -1, y: 28, z: 2, },
   })
 
   await delay(2000)
@@ -97,7 +97,7 @@ export default async function () {
     gltf: op1,
     mass: 1,
     quantity: 1,
-    position: { x: 7, y: 8, z: 1, },
+    position: { x: 4, y: 18, z: 1, },
   })
 
   await delay(1000)
