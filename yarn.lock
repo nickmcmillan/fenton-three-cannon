@@ -6793,10 +6793,10 @@ postcss@^7.0.0, postcss@^7.0.1, postcss@^7.0.2, postcss@^7.0.5:
     source-map "^0.6.1"
     supports-color "^5.5.0"
 
-postprocessing@^5.1.1:
-  version "5.1.1"
-  resolved "https://registry.yarnpkg.com/postprocessing/-/postprocessing-5.1.1.tgz#7566ab40dc14100c69375d7b6f99c79a01d34357"
-  integrity sha512-lhkvyImELV0tEChQN1HagkUP0krQ7UQ/R+AMx92VCF0KfjxWywwfTrWxOWu2go+RhxvqZeXl7NEtnF1SARilug==
+postprocessing@5.3.1:
+  version "5.3.1"
+  resolved "https://registry.yarnpkg.com/postprocessing/-/postprocessing-5.3.1.tgz#3341082e056b4e4e9f0fb8a6ac7f8d935a6d14c0"
+  integrity sha512-bs0IX0xjqJ6ERNokuG7vtkrwysTnUxaMyqbFB8vqP28x9zuGXLuabr4RMSSK1mFZ8JxmAevpJhpVKFeB6iJV8g==
 
 prelude-ls@~1.1.2:
   version "1.1.2"
@@ -8151,14 +8151,15 @@ text-table@0.2.0, text-table@^0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/text-table/-/text-table-0.2.0.tgz#7f5ee823ae805207c00af2df4a84ec3fcfa570b4"
 
-three-gltf-loader@1.98.0:
-  version "1.98.0"
-  resolved "https://registry.yarnpkg.com/three-gltf-loader/-/three-gltf-loader-1.98.0.tgz#ed575a910ca5864bf44a64b84f8ec08d741e9399"
-  integrity sha512-EDkIHescmJ8Zk0P1p+auFBp0nYXyyNx5rGcqEpvcKRoT7upkw/i645bD0WjOV8/StYFYpRXyzetfQBvdbBjdcg==
+three-gltf-loader@1.99.0:
+  version "1.99.0"
+  resolved "https://registry.yarnpkg.com/three-gltf-loader/-/three-gltf-loader-1.99.0.tgz#c34a64cb41d91bc8e8184ec0de1b1d16597fd610"
+  integrity sha512-SQaGnwC4jTbqQgzgTLHiVSWOJDFzruVkdHePD86T5moxd3HYh2CXhIVdnsvg0NLiJCuVCmVN9x+Px9fK1M+mHw==
 
-three@0.98:
-  version "0.98.0"
-  resolved "https://registry.yarnpkg.com/three/-/three-0.98.0.tgz#11d4e3cca4b5d099c7de0ea5afa153b5d20cda84"
+three@0.99.0:
+  version "0.99.0"
+  resolved "https://registry.yarnpkg.com/three/-/three-0.99.0.tgz#65711fda7a16501da83948121437d824df1fea19"
+  integrity sha512-DmNNq6H6nRGaqxScJ8x7v5VjdtDZR72oTVwDdKbB2BYNFxCkAoo9vdFAznEsMu9YzTV2yFvbVs7qHRzvJZzTIg==
 
 throat@^4.0.0:
   version "4.1.0"

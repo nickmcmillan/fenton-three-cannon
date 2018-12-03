@@ -7,11 +7,11 @@
     "dat.gui": "^0.7.3",
     "delay": "^4.1.0",
     "node-sass": "^4.10.0",
-    "postprocessing": "^5.1.1",
+    "postprocessing": "5.3.1",
     "react-scripts": "2.1.1",
     "stats-js": "^1.0.0-alpha1",
-    "three": "0.98",
-    "three-gltf-loader": "1.98.0"
+    "three": "0.99.0",
+    "three-gltf-loader": "1.99.0"
   },
   "scripts": {
     "start": "react-scripts start",
