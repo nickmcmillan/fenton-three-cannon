@@ -22,16 +22,13 @@ const gui = new GUI()
 // composer.addPass(new RenderPass(scene, camera))
 // composer.addPass(effectPass)
 
-
-// let theta = 15
-// const radius = 20
-
 export const settings = {
   // physics
   gx: 0,
   gy: -40,
   gz: 0,
-  restitution: 0.5,
+  restitution: 0.25,
+  contactEquationStiffness: 1e7,
   // camera
   theta: 15,
   radius: 20,
@@ -92,6 +89,9 @@ const initDatGui = function() {
   })
   folderPhysics.add(settings, 'restitution', 0.5, 2).onChange(function (val) {
     if (!isNaN(val)) world.defaultContactMaterial.restitution = val
+  })
+  folderPhysics.add(settings, 'contactEquationStiffness', 1e3, 1e7).onChange(function (val) {
+    if (!isNaN(val)) world.defaultContactMaterial.contactEquationStiffness = val
   })
   
   gui.close()
