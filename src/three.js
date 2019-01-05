@@ -1,23 +1,10 @@
-import {
-  PerspectiveCamera,
-  Scene,
-  Plane,
-  // Vector3,
-  AmbientLight,
-  HemisphereLight,
-  DirectionalLight,
-  // DirectionalLightHelper,
-  // HemisphereLightHelper,
-  PCFSoftShadowMap,
-  WebGLRenderer
-} from 'three'
-
+import * as THREE from 'three'
 import { addGround } from './add/addGround'
 import { handleMove, handleDown, handleUp } from './utils/handleInputs'
 import handleResize from './utils/handleResize'
 import debounce from './utils/debounce'
 
-export const renderer = new WebGLRenderer({
+export const renderer = new THREE.WebGLRenderer({
   canvas: document.getElementById('canvas'),
   antialias: true,
 })
@@ -28,7 +15,7 @@ renderer.setSize(window.innerWidth, window.innerHeight)
 renderer.setClearColor(0xefefff) // bg color
 // renderer.gammaInput = true
 renderer.shadowMap.enabled = true
-renderer.shadowMap.type = PCFSoftShadowMap // shadowMapType options are BasicShadowMap | PCFShadowMap | PCFSoftShadowMap
+renderer.shadowMap.type = THREE.PCFSoftShadowMap // shadowMapType options are BasicShadowMap | PCFShadowMap | PCFSoftShadowMap
 renderer.gammaOutput = true
 renderer.gammaFactor = 2.2
 
@@ -38,11 +25,11 @@ renderer.gammaFactor = 2.2
 // Apsect – We’re simply dividing the browser width and height to get an aspect ratio.
 // Near – This is the distance at which the camera will start rendering scene objects.
 // Far – Anything beyond this distance will not be rendered. Perhaps more commonly known as the draw distance.
-export const camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.5, 100)
-// export const camera = new OrthographicCamera(window.innerWidth / - 50, window.innerWidth / 50, window.innerHeight / 50, window.innerHeight / - 50, 1, 1000);
+// export const camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.5, 100)
+export const camera = new THREE.PerspectiveCamera(window.innerWidth / - 50, window.innerWidth / 50, window.innerHeight / 50, window.innerHeight / - 50, 1, 1000);
 
-export const scene = new Scene()
-export const dragPlane = new Plane()
+export const scene = new THREE.Scene()
+export const dragPlane = new THREE.Plane()
 export const meshes = [] // Three
 
 export default function () {
@@ -53,7 +40,7 @@ export default function () {
   // Lights
   // directional light to cast shadow
   const d = 20
-  const lightDir = new DirectionalLight(0xffffff, 1.25)
+  const lightDir = new THREE.DirectionalLight(0xffffff, 1.25)
   lightDir.position.set(d/2, d, d/2) // default is 0, 1, 0 - which is shining directly from top
   lightDir.castShadow = true
   lightDir.shadow.mapSize.width = 1024  // default is 512
@@ -67,12 +54,12 @@ export default function () {
   scene.add(lightDir)
   
   // hemi light to add a little bit of colour
-  const lightHemi = new HemisphereLight(0x404040, 'pink', 0.75)
+  const lightHemi = new THREE.HemisphereLight(0x404040, 'pink', 0.75)
   lightHemi.position.set(0, 1, 0)
   scene.add(lightHemi)
   
   // ambient light to illuminate the whole scene
-  scene.add(new AmbientLight(0x404040)) 
+  scene.add(new THREE.AmbientLight(0x404040)) 
 
   addGround()
 

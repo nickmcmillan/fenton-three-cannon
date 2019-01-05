@@ -1,4 +1,4 @@
-import { BoxGeometry, MeshLambertMaterial, Mesh } from 'three'
+import * as THREE from 'three'
 import * as CANNON from 'cannon'
 
 import { meshes, scene } from '../three'
@@ -22,13 +22,13 @@ export const addCube = ({
   material = 'MeshLambertMaterial'
 }) => {
   const { x, y, z } = dimensions
-  const geo = new BoxGeometry(x, y, z)
-  const mat = new [material]({ color })
+  const geo = new THREE.BoxGeometry(x, y, z)
+  const mat = new THREE[material]({ color })
   const shape = new CANNON.Box(new CANNON.Vec3(x/2, y/2, z/2))
   
   for (let i = 0; i < quantity; i++) {
     // THREE
-    const mesh = new Mesh(geo, mat)
+    const mesh = new THREE.Mesh(geo, mat)
     mesh.castShadow = true
     mesh.receiveShadow = true
     mesh.name = `${name}-${objCount}`

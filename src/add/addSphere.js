@@ -1,4 +1,4 @@
-import { SphereGeometry, MeshPhongMaterial, Mesh } from 'three'
+import * as THREE from 'three'
 import * as CANNON from 'cannon'
 import randomInRange from '../utils/randomInRange'
 import { meshes, scene } from '../three'
@@ -23,12 +23,12 @@ export const addSphere = ({
     const localRadius = randomInRange(1, 2) / 3
 
     // const { r, w, h } = dimensions
-    const geo = new SphereGeometry(localRadius, 25, 25) // sphere resolution
-    const mat = new MeshPhongMaterial({ color, /*transparent: false, opacity: 1,*/ })
+    const geo = new THREE.SphereGeometry(localRadius, 25, 25) // sphere resolution
+    const mat = new THREE.MeshPhongMaterial({ color, /*transparent: false, opacity: 1,*/ })
     const shape = new CANNON.Sphere(localRadius)
 
     // THREE
-    const mesh = new Mesh(geo, mat)
+    const mesh = new THREE.Mesh(geo, mat)
 
     mesh.castShadow = true
     mesh.receiveShadow = true

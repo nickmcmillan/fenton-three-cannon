@@ -1,4 +1,4 @@
-import { PlaneGeometry, MeshLambertMaterial, Mesh, Vector3 } from 'three'
+import * as THREE from 'three'
 import * as CANNON from 'cannon'
 
 import { scene } from '../three'
@@ -8,10 +8,10 @@ export const addGround = function () {
   const size = 22
   
   // THREE
-  const geo = new PlaneGeometry(size, size)
-  const mat = new MeshLambertMaterial({ color: 'white' })
-  const mesh = new Mesh(geo, mat)
-  mesh.quaternion.setFromAxisAngle(new Vector3(1, 0, 0), -Math.PI / 2)
+  const geo = new THREE.PlaneGeometry(size, size)
+  const mat = new THREE.MeshLambertMaterial({ color: 'white' })
+  const mesh = new THREE.Mesh(geo, mat)
+  mesh.quaternion.setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI / 2)
   mesh.position.y = -0.01
   mesh.receiveShadow = true
   scene.add(mesh)

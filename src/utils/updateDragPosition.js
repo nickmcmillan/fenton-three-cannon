@@ -1,17 +1,17 @@
-import { Vector3, Vector2, Line3 } from 'three'
+import * as THREE from 'three'
 import getCameraRay from './getCameraRay'
 import { lastPos } from './handleInputs'
 import { mouseConstraint, moveJointToPoint } from './handleJoints'
 import { dragPlane } from '../three'
 
-const vec3 = new Vector3()
+const vec3 = new THREE.Vector3()
 
 export default function() {
   if (mouseConstraint) {
-    const ray = getCameraRay(new Vector2(lastPos.x, lastPos.y))
+    const ray = getCameraRay(new THREE.Vector2(lastPos.x, lastPos.y))
     
     const { x, y, z } = dragPlane.intersectLine(
-      new Line3(
+      new THREE.Line3(
         ray.origin,
         ray.origin.clone().add(ray.direction.clone().multiplyScalar(10000))
       ),

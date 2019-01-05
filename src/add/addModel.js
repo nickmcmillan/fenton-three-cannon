@@ -1,4 +1,4 @@
-import { Vector3, Mesh, Box3, Cache } from 'three'
+import * as THREE from 'three'
 import * as CANNON from 'cannon'
 import GLTFLoader from 'three-gltf-loader';
 // import DracoDecoderModule from 'aadraco-decoder';
@@ -12,9 +12,9 @@ import randomInRange from '../utils/randomInRange'
 // import DRACOLoader from 'threejs-ext/src/loaders/DRACOLoader';
 // import dracoDecoder from '../draco/draco_decoder'
 
-Cache.enabled = true // so Three doesn't reload the glb file if quantity > 1
+THREE.Cache.enabled = true // so Three doesn't reload the glb file if quantity > 1
 
-const vec3 = new Vector3()
+const vec3 = new THREE.Vector3()
 
 export const addModel = async ({
   gltf,
@@ -49,7 +49,7 @@ export const addModel = async ({
     
 
     mesh.traverse(child => {
-      if (child instanceof Mesh) {
+      if (child instanceof THREE.Mesh) {
         child.castShadow = true
         child.receiveShadow = true
         child.name = mesh.uuid
@@ -63,7 +63,7 @@ export const addModel = async ({
 
 
     // get dimensions from three  
-    const tempBox = new Box3().setFromObject(mesh)
+    const tempBox = new THREE.Box3().setFromObject(mesh)
     const { x, y, z } = tempBox.getSize(vec3)
 
     // apply dimensions to cannon (but halve them)

@@ -1,10 +1,10 @@
-import { SphereGeometry, MeshBasicMaterial, Mesh } from 'three'
+import * as THREE from 'three'
 import { scene } from '../index'
 
 
-const shape = new SphereGeometry(0.2, 16, 16)
-const markerMaterial = new MeshBasicMaterial({ color: 0x0000ff })
-const clickMarker = new Mesh(shape, markerMaterial)
+const shape = new THREE.SphereGeometry(0.2, 16, 16)
+const markerMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff })
+const clickMarker = new THREE.Mesh(shape, markerMaterial)
 clickMarker.visible = false
 
 export const initClickMarker = function () {

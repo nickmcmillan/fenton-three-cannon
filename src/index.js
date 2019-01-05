@@ -1,4 +1,4 @@
-import { Math as MathThree } from 'three'
+import * as THREE from 'three'
 import { GUI } from 'dat.gui'
 // import { SMAAEffect, EffectComposer, EffectPass, RenderPass } from 'postprocessing'
 
@@ -41,9 +41,9 @@ const render = function () {
   if (settings.autoRotate) {
     settings.theta += 0.06    
   }
-  camera.position.x = settings.radius * Math.sin(MathThree.degToRad(settings.theta))
-  camera.position.y = MathThree.degToRad(360 * settings.height)
-  camera.position.z = settings.radius * Math.cos(MathThree.degToRad(settings.theta))
+  camera.position.x = settings.radius * Math.sin(THREE.Math.degToRad(settings.theta))
+  camera.position.y = THREE.Math.degToRad(360 * settings.height)
+  camera.position.z = settings.radius * Math.cos(THREE.Math.degToRad(settings.theta))
   camera.lookAt(scene.position)
   renderer.render(scene, camera)
   // composer.render(clock.getDelta())
