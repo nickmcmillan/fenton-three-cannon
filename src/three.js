@@ -25,8 +25,8 @@ renderer.gammaFactor = 2.2
 // Apsect – We’re simply dividing the browser width and height to get an aspect ratio.
 // Near – This is the distance at which the camera will start rendering scene objects.
 // Far – Anything beyond this distance will not be rendered. Perhaps more commonly known as the draw distance.
-// export const camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.5, 100)
-export const camera = new THREE.PerspectiveCamera(window.innerWidth / - 50, window.innerWidth / 50, window.innerHeight / 50, window.innerHeight / - 50, 1, 1000);
+export const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.5, 100)
+// export const camera = new THREE.OrthographicCamera(window.innerWidth / - 50, window.innerWidth / 50, window.innerHeight / 50, window.innerHeight / - 50, 1, 1000);
 
 export const scene = new THREE.Scene()
 export const dragPlane = new THREE.Plane()
