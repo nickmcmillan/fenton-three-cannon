@@ -22,7 +22,7 @@ export const addCube = ({
   material = 'MeshLambertMaterial'
 }) => {
   const { x, y, z } = dimensions
-  const geo = new THREE.BoxGeometry(x, y, z)
+  const geo = new THREE.BoxBufferGeometry(x, y, z)
   const mat = new THREE[material]({ color })
   const shape = new CANNON.Box(new CANNON.Vec3(x/2, y/2, z/2))
   
