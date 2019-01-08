@@ -1,6 +1,6 @@
 import * as CANNON from 'cannon'
 
-import { settings } from './index'
+import { settings } from './datgui'
 // import { CannonDebugRenderer } from './helpers/cannonDebugRenderer'
 import { meshes, /* scene */ } from './three'
 
