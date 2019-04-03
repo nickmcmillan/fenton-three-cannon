@@ -13,9 +13,9 @@ export const renderer = new THREE.WebGLRenderer({
 // renderer.setPixelRatio(window.devicePixelRatio * 0.5)
 renderer.setSize(window.innerWidth, window.innerHeight)
 renderer.setClearColor(0xefefff) // bg color
-// renderer.gammaInput = true
+renderer.gammaInput = true
 renderer.shadowMap.enabled = true
-renderer.shadowMap.type = THREE.PCFSoftShadowMap // shadowMapType options are BasicShadowMap | PCFShadowMap | PCFSoftShadowMap
+// renderer.shadowMap.type = THREE.PCFSoftShadowMap // shadowMapType options are BasicShadowMap | PCFShadowMap | PCFSoftShadowMap
 renderer.gammaOutput = true
 renderer.gammaFactor = 2.2
 
