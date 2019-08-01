@@ -3,8 +3,8 @@
   "name": "FENTON • A guitar, synth, bass, drum band from Melbourne",
   "icons": [
     {
-      "src": "favicon.ico",
-      "sizes": "192x192",
+      "src": "./icons/favicon-196x196.png",
+      "sizes": "196x196",
       "type": "image/png"
     }
   ],
