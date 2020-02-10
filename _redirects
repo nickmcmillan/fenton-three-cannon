@@ -1,0 +1,6 @@
+/cuties            https://www.petsofnetlify.com
+test1.listentofenton.com            https://www.listentofenton.com/test1yo/:splat
+test2.listentofenton.com            https://www.listentofenton.com/test2yo
+https://test3.listentofenton.com/* /test3yo/:splat 200!
+https://test4.listentofenton.com/* https://listentofenton.com/test4yo/:splat 200
+
