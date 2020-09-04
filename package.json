@@ -6,7 +6,7 @@
     "cannon": "^0.6.2",
     "dat.gui": "^0.7.6",
     "delay": "^4.1.0",
-    "node-sass": "^4.10.0",
+    "node-sass": "^4.13.1",
     "postprocessing": "5.4.0",
     "react-scripts": "^2.1.8",
     "stats-js": "^1.0.0-alpha1",
