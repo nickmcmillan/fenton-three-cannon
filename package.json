@@ -10,7 +10,7 @@
     "postprocessing": "5.4.0",
     "react-scripts": "^2.1.8",
     "stats-js": "^1.0.0-alpha1",
-    "three": "0.107",
+    "three": "0.125",
     "three-gltf-loader": "^1.103.0"
   },
   "scripts": {
